@@ -92,7 +92,7 @@ def edit_supermarket(id):
         return redirect(url_for('main.manage_supermarkets'))
     return render_template('edit_supermarket.html', supermarket=supermarket)
 
-@main.route('/supermarkets/delete/<int:id>', methods=['POST'])
+@main.route('/supermarkets/delete/<int:id>', methods=['GET', 'POST'])
 def delete_supermarket(id):
     supermarket = Supermarket.query.get_or_404(id)
     db.session.delete(supermarket)
@@ -125,7 +125,7 @@ def edit_product(id):
         return redirect(url_for('main.manage_products'))
     return render_template('edit_product.html', product=product)
 
-@main.route('/products/delete/<int:id>', methods=['POST'])
+@main.route('/products/delete/<int:id>', methods=['GET', 'POST'])
 def delete_product(id):
     product = Product.query.get_or_404(id)
     db.session.delete(product)
@@ -133,10 +133,16 @@ def delete_product(id):
     flash('Product deleted successfully', 'success')
     return redirect(url_for('main.manage_products'))
 
-@main.route('/deliveries/delete/<int:delivery_id>', methods=['POST'])
+@main.route('/deliveries/delete/<int:delivery_id>', methods=['GET', 'POST'])
 def delete_delivery(delivery_id):
-    delivery = Delivery.query.get_or_404(delivery_id)
-    db.session.delete(delivery)
-    db.session.commit()
-    flash('Delivery deleted successfully', 'success')
+    try:
+        delivery = Delivery.query.get_or_404(delivery_id)
+        for item in delivery.items:
+            db.session.delete(item)
+        db.session.delete(delivery)
+        db.session.commit()
+        flash('Delivery deleted successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting delivery: {str(e)}', 'danger')
     return redirect(url_for('main.deliveries'))

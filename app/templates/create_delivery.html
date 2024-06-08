@@ -53,17 +53,39 @@
   </form>
 
   <script>
+    // Function to create a clean product row
+    function createProductRow() {
+      const newRow = document.createElement('tr');
+      newRow.className = 'product-row';
+      newRow.innerHTML = `
+        <td>
+          <select class="form-control product-select" name="product_id[]" required>
+            <option value="" disabled selected>Choose Product</option>
+            {% for product in products %}
+                <option value="{{ product.id }}" data-price="{{ product.price }}">{{ product.name }}</option>
+            {% endfor %}
+          </select>
+        </td>
+        <td><input type="number" class="form-control quantity-input" name="quantity[]" placeholder="Quantity" required></td>
+        <td><input type="number" step="0.01" class="form-control price-input" name="price[]" placeholder="Price" readonly required></td>
+        <td><button type="button" class="btn btn-danger remove-row">Remove</button></td>
+      `;
+      return newRow;
+    }
+
     document.getElementById('add-row').addEventListener('click', function () {
         const table = document.getElementById('products-table').getElementsByTagName('tbody')[0];
-        const newRow = table.rows[0].cloneNode(true);
-        newRow.querySelectorAll('input').forEach(input => input.value = '');
-        newRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+        const newRow = createProductRow();
         table.appendChild(newRow);
     });
 
     document.addEventListener('click', function (e) {
         if (e.target && e.target.classList.contains('remove-row')) {
-            e.target.closest('tr').remove();
+            const row = e.target.closest('tr');
+            const table = row.closest('tbody');
+            if (table.rows.length > 1) {
+                row.remove();
+            }
         }
     });
 
