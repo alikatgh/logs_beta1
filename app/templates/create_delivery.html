@@ -1,64 +1,101 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
-    <h1>Create Delivery</h1>
-    <form method="POST" action="{{ url_for('main.create_delivery') }}">
-        <div class="form-group">
-            <label for="delivery_date">Delivery Date</label>
-            <input type="date" class="form-control" id="delivery_date" name="delivery_date" required>
-        </div>
-        <div class="form-group">
-            <label for="supermarket_id">Supermarket</label>
-            <select class="form-control" id="supermarket_id" name="supermarket_id" required>
-                {% for supermarket in supermarkets %}
-                    <option value="{{ supermarket.id }}">{{ supermarket.name }}</option>
-                {% endfor %}
+  <header class="text-center">
+      <h1>Create Delivery</h1>
+  </header>
+  <form method="POST" action="{{ url_for('main.create_delivery') }}" class="mt-4" id="delivery-form">
+    <div class="form-group">
+      <label for="delivery_date">Delivery Date</label>
+      <input type="date" class="form-control" id="delivery_date" name="delivery_date" required>
+    </div>
+    <div class="form-group">
+      <label for="supermarket_id">Supermarket</label>
+      <select class="form-control" id="supermarket_id" name="supermarket_id" required>
+        <option value="" disabled selected>Choose Supermarket</option>
+        {% for supermarket in supermarkets %}
+          <option value="{{ supermarket.id }}">{{ supermarket.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <h3>Products</h3>
+    <table class="table table-striped table-hover" id="products-table">
+      <thead class="thead-dark">
+        <tr>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="product-row">
+          <td>
+            <select class="form-control product-select" name="product_id[]" required>
+              <option value="" disabled selected>Choose Product</option>
+              {% for product in products %}
+                <option value="{{ product.id }}" data-price="{{ product.price }}">{{ product.name }}</option>
+              {% endfor %}
             </select>
-        </div>
-        <h3>Products</h3>
-        <table class="table" id="products-table">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <select class="form-control product-select" name="product_id[]" required>
-                            {% for product in products %}
-                                <option value="{{ product.id }}">{{ product.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                    <td><input type="number" class="form-control quantity-input" name="quantity[]" required></td>
-                    <td><input type="number" step="0.01" class="form-control price-input" name="price[]" required></td>
-                    <td><button type="button" class="btn btn-danger remove-row">Remove</button></td>
-                </tr>
-            </tbody>
-        </table>
-        <button type="button" class="btn btn-primary" id="add-row">Add Product</button>
-        <button type="submit" class="btn btn-success">Create Delivery</button>
-    </form>
-</div>
+          </td>
+          <td><input type="number" class="form-control quantity-input" name="quantity[]" placeholder="Quantity" required></td>
+          <td><input type="number" step="0.01" class="form-control price-input" name="price[]" placeholder="Price" readonly required></td>
+          <td><button type="button" class="btn btn-danger remove-row">Remove</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="text-right">
+      <button type="button" class="btn btn-primary" id="add-row">Add Product</button>
+    </div>
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-success btn-lg">Create Delivery</button>
+    </div>
+  </form>
 
-<script>
-document.getElementById('add-row').addEventListener('click', function() {
-    var productsTable = document.getElementById('products-table').getElementsByTagName('tbody')[0];
-    var newRow = productsTable.rows[0].cloneNode(true);
-    newRow.querySelectorAll('input').forEach(input => input.value = '');
-    productsTable.appendChild(newRow);
-});
+  <script>
+    document.getElementById('add-row').addEventListener('click', function () {
+        const table = document.getElementById('products-table').getElementsByTagName('tbody')[0];
+        const newRow = table.rows[0].cloneNode(true);
+        newRow.querySelectorAll('input').forEach(input => input.value = '');
+        newRow.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+        table.appendChild(newRow);
+    });
 
-document.addEventListener('click', function(event) {
-    if (event.target.classList.contains('remove-row')) {
-        var row = event.target.closest('tr');
-        row.parentNode.removeChild(row);
-    }
-});
-</script>
+    document.addEventListener('click', function (e) {
+        if (e.target && e.target.classList.contains('remove-row')) {
+            e.target.closest('tr').remove();
+        }
+    });
+
+    document.getElementById('delivery-form').addEventListener('submit', function (e) {
+        const table = document.getElementById('products-table').getElementsByTagName('tbody')[0];
+        const rows = table.querySelectorAll('tr');
+        let emptyRows = false;
+
+        rows.forEach(row => {
+            const productSelect = row.querySelector('.product-select');
+            const quantityInput = row.querySelector('.quantity-input');
+            const priceInput = row.querySelector('.price-input');
+            
+            if (productSelect.value === "" || quantityInput.value === "" || priceInput.value === "") {
+                emptyRows = true;
+                row.remove();
+            }
+        });
+
+        if (emptyRows) {
+            e.preventDefault();
+            alert('Please fill out all product fields or remove empty rows.');
+        }
+    });
+
+    // Update price input based on selected product
+    document.addEventListener('change', function (e) {
+        if (e.target && e.target.classList.contains('product-select')) {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const priceInput = e.target.closest('tr').querySelector('.price-input');
+            priceInput.value = selectedOption.getAttribute('data-price');
+        }
+    });
+  </script>
 {% endblock %}

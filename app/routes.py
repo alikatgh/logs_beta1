@@ -49,17 +49,21 @@ def create_delivery():
 
     return render_template('create_delivery.html', products=products, supermarkets=supermarkets)
 
-@main.route('/deliveries')
+@main.route('/deliveries', methods=['GET', 'POST'])
 def deliveries():
+    if request.method == 'POST':
+        delivery_id = request.form.get('delivery_id')
+        if delivery_id:
+            return redirect(url_for('main.delete_delivery', delivery_id=delivery_id))
     deliveries = Delivery.query.all()
     return render_template('deliveries.html', deliveries=deliveries)
 
-@main.route('/deliveries/<int:delivery_id>')
+@main.route('/deliveries/<int:delivery_id>', methods=['GET'])
 def delivery_details(delivery_id):
     delivery = Delivery.query.get_or_404(delivery_id)
     return render_template('delivery_details.html', delivery=delivery)
 
-@main.route('/report')
+@main.route('/report', methods=['GET'])
 def report():
     return render_template('report.html')
 
@@ -88,7 +92,7 @@ def edit_supermarket(id):
         return redirect(url_for('main.manage_supermarkets'))
     return render_template('edit_supermarket.html', supermarket=supermarket)
 
-@main.route('/supermarkets/delete/<int:id>')
+@main.route('/supermarkets/delete/<int:id>', methods=['POST'])
 def delete_supermarket(id):
     supermarket = Supermarket.query.get_or_404(id)
     db.session.delete(supermarket)
@@ -121,10 +125,18 @@ def edit_product(id):
         return redirect(url_for('main.manage_products'))
     return render_template('edit_product.html', product=product)
 
-@main.route('/products/delete/<int:id>')
+@main.route('/products/delete/<int:id>', methods=['POST'])
 def delete_product(id):
     product = Product.query.get_or_404(id)
     db.session.delete(product)
     db.session.commit()
     flash('Product deleted successfully', 'success')
     return redirect(url_for('main.manage_products'))
+
+@main.route('/deliveries/delete/<int:delivery_id>', methods=['POST'])
+def delete_delivery(delivery_id):
+    delivery = Delivery.query.get_or_404(delivery_id)
+    db.session.delete(delivery)
+    db.session.commit()
+    flash('Delivery deleted successfully', 'success')
+    return redirect(url_for('main.deliveries'))
