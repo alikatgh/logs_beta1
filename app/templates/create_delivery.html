@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Create Delivery</h1>
+    <form method="POST" action="{{ url_for('main.create_delivery') }}">
+        <div class="form-group">
+            <label for="delivery_date">Delivery Date</label>
+            <input type="date" class="form-control" id="delivery_date" name="delivery_date" required>
+        </div>
+        <div class="form-group">
+            <label for="supermarket_id">Supermarket</label>
+            <select class="form-control" id="supermarket_id" name="supermarket_id" required>
+                {% for supermarket in supermarkets %}
+                    <option value="{{ supermarket.id }}">{{ supermarket.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <h3>Products</h3>
+        <table class="table" id="products-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <select class="form-control product-select" name="product_id[]" required>
+                            {% for product in products %}
+                                <option value="{{ product.id }}">{{ product.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td><input type="number" class="form-control quantity-input" name="quantity[]" required></td>
+                    <td><input type="number" step="0.01" class="form-control price-input" name="price[]" required></td>
+                    <td><button type="button" class="btn btn-danger remove-row">Remove</button></td>
+                </tr>
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" id="add-row">Add Product</button>
+        <button type="submit" class="btn btn-success">Create Delivery</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('add-row').addEventListener('click', function() {
+    var productsTable = document.getElementById('products-table').getElementsByTagName('tbody')[0];
+    var newRow = productsTable.rows[0].cloneNode(true);
+    newRow.querySelectorAll('input').forEach(input => input.value = '');
+    productsTable.appendChild(newRow);
+});
+
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('remove-row')) {
+        var row = event.target.closest('tr');
+        row.parentNode.removeChild(row);
+    }
+});
+</script>
+{% endblock %}

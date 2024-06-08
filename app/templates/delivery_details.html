@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Delivery Details</h1>
+  <p><strong>Supermarket:</strong> {{ delivery.supermarket.name }}</p>
+  <p><strong>Delivery Date:</strong> {{ delivery.delivery_date.strftime('%Y-%m-%d') }}</p>
+  <h2>Items</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in delivery.items %}
+        <tr>
+          <td>{{ item.product.name }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.price }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="{{ url_for('main.deliveries') }}" class="btn btn-secondary">Back to Deliveries</a>
+{% endblock %}
