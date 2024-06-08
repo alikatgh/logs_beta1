@@ -1,4 +1,6 @@
 # app/models.py
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 from .database import db
 
 class Supermarket(db.Model):
@@ -30,3 +32,17 @@ class DeliveryItem(db.Model):
     price = db.Column(db.Float, nullable=False)
     delivery = db.relationship('Delivery', back_populates='items')
     product = db.relationship('Product', back_populates='delivery_items')
+
+# login and register implementation
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), nullable=False, unique=True)
+    email = db.Column(db.String(150), nullable=False, unique=True)
+    password_hash = db.Column(db.String(128), nullable=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)

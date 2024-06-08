@@ -2,15 +2,20 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from datetime import datetime
 from .database import db
-from .models import Delivery, DeliveryItem, Supermarket, Product
+from .models import Delivery, DeliveryItem, Supermarket, Product, User
+from .forms import RegistrationForm, LoginForm
+from flask_login import login_user, logout_user, login_required, current_user
 
 main = Blueprint('main', __name__)
+auth = Blueprint('auth', __name__)
 
 @main.route('/')
+@login_required
 def index():
     return render_template('index.html')
 
 @main.route('/deliveries/create', methods=['GET', 'POST'])
+@login_required
 def create_delivery():
     products = Product.query.all()
     supermarkets = Supermarket.query.all()
@@ -50,6 +55,7 @@ def create_delivery():
     return render_template('create_delivery.html', products=products, supermarkets=supermarkets)
 
 @main.route('/deliveries', methods=['GET', 'POST'])
+@login_required
 def deliveries():
     if request.method == 'POST':
         delivery_id = request.form.get('delivery_id')
@@ -59,15 +65,18 @@ def deliveries():
     return render_template('deliveries.html', deliveries=deliveries)
 
 @main.route('/deliveries/<int:delivery_id>', methods=['GET'])
+@login_required
 def delivery_details(delivery_id):
     delivery = Delivery.query.get_or_404(delivery_id)
     return render_template('delivery_details.html', delivery=delivery)
 
 @main.route('/report', methods=['GET'])
+@login_required
 def report():
     return render_template('report.html')
 
 @main.route('/supermarkets', methods=['GET', 'POST'])
+@login_required
 def manage_supermarkets():
     if request.method == 'POST':
         name = request.form['name']
@@ -82,6 +91,7 @@ def manage_supermarkets():
     return render_template('manage_supermarkets.html', supermarkets=supermarkets)
 
 @main.route('/supermarkets/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
 def edit_supermarket(id):
     supermarket = Supermarket.query.get_or_404(id)
     if request.method == 'POST':
@@ -92,7 +102,8 @@ def edit_supermarket(id):
         return redirect(url_for('main.manage_supermarkets'))
     return render_template('edit_supermarket.html', supermarket=supermarket)
 
-@main.route('/supermarkets/delete/<int:id>', methods=['GET', 'POST'])
+@main.route('/supermarkets/delete/<int:id>', methods=['POST'])
+@login_required
 def delete_supermarket(id):
     supermarket = Supermarket.query.get_or_404(id)
     db.session.delete(supermarket)
@@ -101,6 +112,7 @@ def delete_supermarket(id):
     return redirect(url_for('main.manage_supermarkets'))
 
 @main.route('/products', methods=['GET', 'POST'])
+@login_required
 def manage_products():
     if request.method == 'POST':
         name = request.form['name']
@@ -115,6 +127,7 @@ def manage_products():
     return render_template('manage_products.html', products=products)
 
 @main.route('/products/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
 def edit_product(id):
     product = Product.query.get_or_404(id)
     if request.method == 'POST':
@@ -125,7 +138,8 @@ def edit_product(id):
         return redirect(url_for('main.manage_products'))
     return render_template('edit_product.html', product=product)
 
-@main.route('/products/delete/<int:id>', methods=['GET', 'POST'])
+@main.route('/products/delete/<int:id>', methods=['POST'])
+@login_required
 def delete_product(id):
     product = Product.query.get_or_404(id)
     db.session.delete(product)
@@ -133,7 +147,8 @@ def delete_product(id):
     flash('Product deleted successfully', 'success')
     return redirect(url_for('main.manage_products'))
 
-@main.route('/deliveries/delete/<int:delivery_id>', methods=['GET', 'POST'])
+@main.route('/deliveries/delete/<int:delivery_id>', methods=['POST'])
+@login_required
 def delete_delivery(delivery_id):
     try:
         delivery = Delivery.query.get_or_404(delivery_id)
@@ -146,3 +161,39 @@ def delete_delivery(delivery_id):
         db.session.rollback()
         flash(f'Error deleting delivery: {str(e)}', 'danger')
     return redirect(url_for('main.deliveries'))
+
+# Register, login, and logout routes
+@auth.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        email = form.email.data
+        password = form.password.data
+        user = User(username=username, email=email)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+        flash('Registration successful! You can now log in.', 'success')
+        return redirect(url_for('auth.login'))
+    return render_template('register.html', form=form)
+
+@auth.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user)
+            flash('Logged in successfully.', 'success')
+            return redirect(url_for('main.index'))
+        else:
+            flash('Invalid email or password.', 'danger')
+    return render_template('login.html', form=form)
+
+@auth.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('auth.login'))
