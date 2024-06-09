@@ -79,12 +79,15 @@ def report():
 @login_required
 def manage_supermarkets():
     if request.method == 'POST':
-        name = request.form['name']
-        address = request.form['address']
-        new_supermarket = Supermarket(name=name, address=address)
-        db.session.add(new_supermarket)
+        names = request.form.getlist('name[]')
+        addresses = request.form.getlist('address[]')
+        
+        for name, address in zip(names, addresses):
+            new_supermarket = Supermarket(name=name, address=address)
+            db.session.add(new_supermarket)
+        
         db.session.commit()
-        flash('Supermarket added successfully', 'success')
+        flash('Supermarkets added successfully', 'success')
         return redirect(url_for('main.manage_supermarkets'))
     
     supermarkets = Supermarket.query.all()

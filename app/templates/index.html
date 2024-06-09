@@ -1,32 +1,42 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-<header class="text-center my-4">
-    <h1>Welcome to the Borgotsoi Logistics System!</h1>
-    <p>Mongolian language will be available soon.</p>
-</header>
-<div class="container text-center">
+  <div class="jumbotron text-center">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" class="img-fluid" alt="Logo" style="max-width: 150px;">
+    <h1 class="display-4">Welcome to Borgotsoi Logistics System</h1>
+    <p class="lead">Manage your deliveries, supermarkets, and products efficiently.</p>
+    <hr class="my-4">
     <div class="row">
-        <div class="col-md-6">
-            <img src="{{ url_for('static', filename='images/logo.jpg') }}" class="img-fluid" alt="Logo">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <img src="{{ url_for('static', filename='images/cargo-truck.png') }}" class="img-fluid" alt="Create Delivery Icon" style="max-width: 50px;">
+            <h5 class="card-title mt-2">Create Delivery</h5>
+            <p class="card-text">Create a new delivery and assign products to it.</p>
+            <a href="{{ url_for('main.create_delivery') }}" class="btn btn-primary">Create Delivery</a>
+          </div>
         </div>
-        <div class="col-md-6 d-flex flex-column justify-content-center">
-            <p>The Borgotsoi Logistics System is an internal tool designed for efficient management and tracking of deliveries. Explore the various features and functionalities available within our system:</p>
-            <div class="card my-2">
-                <div class="card-body">
-                    <h5 class="card-title">Deliveries</h5>
-                    <p class="card-text">View and manage your deliveries.</p>
-                    <a href="{{ url_for('main.deliveries') }}" class="btn btn-primary">Go To Deliveries</a>
-                </div>
-            </div>
-            <div class="card my-2">
-                <div class="card-body">
-                    <h5 class="card-title">Delivery Reports</h5>
-                    <p class="card-text">View detailed reports of your deliveries.</p>
-                    <a href="{{ url_for('main.report') }}" class="btn btn-primary">Go To Delivery Reports</a>
-                </div>
-            </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <img src="{{ url_for('static', filename='images/supermarket.png') }}" class="img-fluid" alt="Manage Supermarkets Icon" style="max-width: 50px;">
+            <h5 class="card-title mt-2">Manage Supermarkets</h5>
+            <p class="card-text">Add, edit, or delete supermarkets.</p>
+            <a href="{{ url_for('main.manage_supermarkets') }}" class="btn btn-primary">Manage Supermarkets</a>
+          </div>
         </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <img src="{{ url_for('static', filename='images/products.png') }}" class="img-fluid" alt="Manage Products Icon" style="max-width: 50px;">
+            <h5 class="card-title mt-2">Manage Products</h5>
+            <p class="card-text">Add, edit, or delete products.</p>
+            <a href="{{ url_for('main.manage_products') }}" class="btn btn-primary">Manage Products</a>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 {% endblock %}
