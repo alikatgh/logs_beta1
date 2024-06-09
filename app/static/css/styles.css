@@ -14,7 +14,7 @@ body {
 
 /* Header styling */
 header {
-    background-color: #333;
+    background-color: #2e7d32; /* Neutral green */
     color: #fff;
     padding: 1rem 0;
     text-align: center;
@@ -33,11 +33,8 @@ header h1 {
 
 /* Form styling */
 form {
-    /* background: #fff;
-    padding: 2rem; */
     margin-top: 2rem;
     border-radius: 5px;
-    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
 }
 
 form .form-group {
@@ -61,7 +58,7 @@ form .form-group button {
 }
 
 form .form-group button {
-    background: #333;
+    background: #2e7d32; /* Neutral green */
     color: #fff;
     border: none;
     cursor: pointer;
@@ -69,7 +66,7 @@ form .form-group button {
 }
 
 form .form-group button:hover {
-    background: #555;
+    background: #388e3c; /* Slightly darker green */
 }
 
 /* Table styling */
@@ -77,18 +74,25 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 2rem;
+    background-color: #fff;
+    border: 1px solid #ddd;
 }
 
 table thead {
-    background: #333;
+    background: #2e7d32; /* Neutral green */
     color: #fff;
 }
 
 table th,
 table td {
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     text-align: left;
     border: 1px solid #ddd;
+}
+
+table th {
+    font-weight: bold;
+    color: white;
 }
 
 table tr:nth-child(even) {
@@ -108,12 +112,12 @@ table tr:nth-child(even) {
 }
 
 .btn-primary {
-    background: #333;
+    background: #1385d1; /* Neutral green */
     color: #fff;
 }
 
 .btn-primary:hover {
-    background: #555;
+    background: #388e3c; /* Slightly darker green */
 }
 
 .btn-danger {
@@ -161,7 +165,7 @@ table tr:nth-child(even) {
 }
 
 /* Modal styling */
-.modal {
+/* .modal {
     display: none;
     position: fixed;
     z-index: 1;
@@ -181,7 +185,26 @@ table tr:nth-child(even) {
     border: 1px solid #888;
     width: 80%;
     border-radius: 5px;
+    color: black;
+} */
+
+/* MODAL HEADER START */
+
+.modal-content {
+    background-color: #fff !important;
+    color: black !important;
 }
+
+.modal-header,
+.modal-footer {
+    border-color: #dee2e6 !important;
+}
+
+.modal-title {
+    color: black !important;
+}
+
+/* MODEL HEADER END */
 
 .close {
     color: #aaa;
@@ -202,7 +225,7 @@ table tr:nth-child(even) {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #333;
+    background-color: #2e7d32; /* Neutral green */
     padding: 0.5rem 2rem;
 }
 
@@ -213,7 +236,7 @@ table tr:nth-child(even) {
 }
 
 .navbar a:hover {
-    background-color: #555;
+    background-color: #388e3c; /* Slightly darker green */
     border-radius: 5px;
 }
 
@@ -267,38 +290,48 @@ table tr:nth-child(even) {
     width: 100%;
 }
 
+/* Footer styling */
 .footer {
     background-color: #f8f9fa; /* Same as the main section background */
     padding: 20px 0;
     border-top: 1px solid #eaeaea;
-  }
+}
   
-  .footer h5 {
+.footer h5 {
     font-weight: bold;
-  }
+}
   
-  .footer ul {
+.footer ul {
     padding-left: 0;
-  }
+}
   
-  .footer ul li {
+.footer ul li {
     list-style: none;
-  }
+}
   
-  .footer ul li a {
+.footer ul li a {
     color: #007bff;
     text-decoration: none;
-  }
+}
   
-  .footer ul li a:hover {
+.footer ul li a:hover {
     text-decoration: underline;
-  }
+}
   
-  .footer p {
+.footer p {
     margin-bottom: 0.5rem;
-  }
+}
   
-  .footer .text-center {
+.footer .text-center {
     margin-top: 20px;
-  }
-  
+}
+
+/* Page title styling */
+.page-title {
+    color: black;
+    text-align: left;
+    background: none;
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}

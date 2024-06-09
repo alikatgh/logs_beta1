@@ -1,11 +1,48 @@
 {% extends "base.html" %}
 
 {% block content %}
-<header>
+<header class="page-title">
     <h1>Reports</h1>
 </header>
 <main>
     <h2>Generate and View Reports</h2>
-    <!-- Report generation and viewing logic here -->
+    <table class="table table-striped table-hover mt-4">
+        <thead>
+            <tr>
+                <th>Delivery Date</th>
+                <th>Supermarket</th>
+                <th>Subchain</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in report_data %}
+                <tr>
+                    <td>{{ row['Delivery Date'] }}</td>
+                    <td>{{ row['Supermarket'] }}</td>
+                    <td>{{ row['Subchain'] }}</td>
+                    <td>{{ row['Product'] }}</td>
+                    <td>{{ row['Quantity'] }}</td>
+                    <td>{{ row['Price'] }}</td>
+                    <td>{{ row['Total'] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <form method="POST" action="{{ url_for('main.report') }}">
+        <input type="hidden" name="data" id="data">
+        <button type="submit" class="btn btn-success btn-lg" onclick="prepareData()">Export to Excel</button>
+    </form>
 </main>
+
+<script>
+    function prepareData() {
+        const data = JSON.parse('{{ report_data | tojson | safe }}');
+        document.getElementById('data').value = JSON.stringify(data);
+    }
+</script>
+
 {% endblock %}

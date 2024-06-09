@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <header class="text-center">
-      <h1>Create Delivery</h1>
+  <header class="page-title">
+    <h1>Create Delivery</h1>
   </header>
   <form method="POST" action="{{ url_for('main.create_delivery') }}" class="mt-4" id="delivery-form">
     <div class="form-group">
@@ -16,6 +16,12 @@
         {% for supermarket in supermarkets %}
           <option value="{{ supermarket.id }}">{{ supermarket.name }}</option>
         {% endfor %}
+      </select>
+    </div>
+    <div class="form-group" id="subchain-container" style="display: none;">
+      <label for="subchain">Subchain</label>
+      <select class="form-control" id="subchain" name="subchain">
+        <option value="" disabled selected>Choose Subchain</option>
       </select>
     </div>
     <h3>Products</h3>
@@ -118,6 +124,27 @@
             const priceInput = e.target.closest('tr').querySelector('.price-input');
             priceInput.value = selectedOption.getAttribute('data-price');
         }
+    });
+
+    // Handle dynamic loading of subchain options
+    document.getElementById('supermarket_id').addEventListener('change', function() {
+      const supermarketId = this.value;
+      const subchainContainer = document.getElementById('subchain-container');
+      const subchainDropdown = document.getElementById('subchain');
+
+      if (supermarketId) {
+        fetch(`/get_subchains/${supermarketId}`)
+          .then(response => response.json())
+          .then(data => {
+            subchainDropdown.innerHTML = '<option value="" disabled selected>Choose Subchain</option>';
+            data.forEach(subchain => {
+              subchainDropdown.innerHTML += `<option value="${subchain.id}">${subchain.name}</option>`;
+            });
+            subchainContainer.style.display = 'block';
+          });
+      } else {
+        subchainContainer.style.display = 'none';
+      }
     });
   </script>
 {% endblock %}

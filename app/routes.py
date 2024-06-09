@@ -1,10 +1,13 @@
 # app/routes.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, send_file
 from datetime import datetime
 from .database import db
-from .models import Delivery, DeliveryItem, Supermarket, Product, User
+from .models import Delivery, DeliveryItem, Supermarket, Subchain, Product, User
 from .forms import RegistrationForm, LoginForm
 from flask_login import login_user, logout_user, login_required, current_user
+
+import pandas as pd
+import io
 
 main = Blueprint('main', __name__)
 auth = Blueprint('auth', __name__)
@@ -23,14 +26,20 @@ def create_delivery():
     if request.method == 'POST':
         try:
             delivery_date = datetime.strptime(request.form['delivery_date'], '%Y-%m-%d')
-            supermarket_id = request.form['supermarket_id']
+            supermarket_id = request.form.get('supermarket_id')
+            subchain_id = request.form.get('subchain')
 
             product_ids = request.form.getlist('product_id[]')
             quantities = request.form.getlist('quantity[]')
             prices = request.form.getlist('price[]')
 
+            if not supermarket_id:
+                flash('Please select a supermarket', 'danger')
+                return redirect(url_for('main.create_delivery'))
+
             new_delivery = Delivery(
                 supermarket_id=supermarket_id,
+                subchain_id=subchain_id,
                 delivery_date=delivery_date
             )
             db.session.add(new_delivery)
@@ -70,28 +79,31 @@ def delivery_details(delivery_id):
     delivery = Delivery.query.get_or_404(delivery_id)
     return render_template('delivery_details.html', delivery=delivery)
 
-@main.route('/report', methods=['GET'])
-@login_required
-def report():
-    return render_template('report.html')
-
 @main.route('/supermarkets', methods=['GET', 'POST'])
 @login_required
 def manage_supermarkets():
     if request.method == 'POST':
-        names = request.form.getlist('name[]')
-        addresses = request.form.getlist('address[]')
-        
-        for name, address in zip(names, addresses):
+        if 'subchain_name' in request.form:
+            # Handling Subchain addition
+            name = request.form['subchain_name']
+            supermarket_id = request.form['supermarket_id']
+            new_subchain = Subchain(name=name, supermarket_id=supermarket_id)
+            db.session.add(new_subchain)
+            db.session.commit()
+            flash('Subchain added successfully', 'success')
+        else:
+            # Handling Supermarket addition
+            name = request.form['name']
+            address = request.form['address']
             new_supermarket = Supermarket(name=name, address=address)
             db.session.add(new_supermarket)
-        
-        db.session.commit()
-        flash('Supermarkets added successfully', 'success')
+            db.session.commit()
+            flash('Supermarket added successfully', 'success')
         return redirect(url_for('main.manage_supermarkets'))
-    
+
     supermarkets = Supermarket.query.all()
-    return render_template('manage_supermarkets.html', supermarkets=supermarkets)
+    subchains = Subchain.query.all()
+    return render_template('manage_supermarkets.html', supermarkets=supermarkets, subchains=subchains)
 
 @main.route('/supermarkets/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -113,6 +125,36 @@ def delete_supermarket(id):
     db.session.commit()
     flash('Supermarket deleted successfully', 'success')
     return redirect(url_for('main.manage_supermarkets'))
+
+# SUBCHAINS
+
+@main.route('/subchains/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_subchain(id):
+    subchain = Subchain.query.get_or_404(id)
+    if request.method == 'POST':
+        subchain.name = request.form['name']
+        subchain.supermarket_id = request.form['supermarket_id']
+        db.session.commit()
+        flash('Subchain updated successfully', 'success')
+        return redirect(url_for('main.manage_supermarkets'))
+    supermarkets = Supermarket.query.all()
+    return render_template('edit_subchain.html', subchain=subchain, supermarkets=supermarkets)
+
+@main.route('/subchains/delete/<int:id>', methods=['POST'])
+@login_required
+def delete_subchain(id):
+    subchain = Subchain.query.get_or_404(id)
+    db.session.delete(subchain)
+    db.session.commit()
+    flash('Subchain deleted successfully', 'success')
+    return redirect(url_for('main.manage_supermarkets'))
+
+@main.route('/get_subchains/<int:supermarket_id>')
+def get_subchains(supermarket_id):
+    subchains = Subchain.query.filter_by(supermarket_id=supermarket_id).all()
+    subchain_data = [{'id': subchain.id, 'name': subchain.name} for subchain in subchains]
+    return jsonify(subchain_data)
 
 @main.route('/products', methods=['GET', 'POST'])
 @login_required
@@ -176,6 +218,38 @@ def delete_delivery(delivery_id):
         db.session.rollback()
         flash(f'Error deleting delivery: {str(e)}', 'danger')
     return redirect(url_for('main.deliveries'))
+
+# ABOUT REPORT
+
+@main.route('/report', methods=['GET', 'POST'])
+@login_required
+def report():
+    if request.method == 'POST':
+        # Handle export to Excel
+        data = request.form.get('data')
+        df = pd.read_json(data)  # Assuming the data is in JSON format
+        output = io.BytesIO()
+        writer = pd.ExcelWriter(output, engine='xlsxwriter')
+        df.to_excel(writer, index=False, sheet_name='Report')
+        writer.close()
+        output.seek(0)
+        return send_file(output, download_name='report.xlsx', as_attachment=True)
+
+    deliveries = Delivery.query.all()
+    report_data = []
+    for delivery in deliveries:
+        for item in delivery.items:
+            subchain = Subchain.query.get(delivery.subchain_id)
+            report_data.append({
+                'Delivery Date': delivery.delivery_date.strftime('%Y-%m-%d'),
+                'Supermarket': delivery.supermarket.name,
+                'Subchain': subchain.name if subchain else 'N/A',
+                'Product': item.product.name,
+                'Quantity': item.quantity,
+                'Price': item.price,
+                'Total': item.quantity * item.price
+            })
+    return render_template('report.html', report_data=report_data)
 
 # Register, login, and logout routes
 @auth.route('/register', methods=['GET', 'POST'])
