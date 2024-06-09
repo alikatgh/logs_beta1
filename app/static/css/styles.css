@@ -266,3 +266,39 @@ table tr:nth-child(even) {
 .auth-form .btn {
     width: 100%;
 }
+
+.footer {
+    background-color: #f8f9fa; /* Same as the main section background */
+    padding: 20px 0;
+    border-top: 1px solid #eaeaea;
+  }
+  
+  .footer h5 {
+    font-weight: bold;
+  }
+  
+  .footer ul {
+    padding-left: 0;
+  }
+  
+  .footer ul li {
+    list-style: none;
+  }
+  
+  .footer ul li a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .footer ul li a:hover {
+    text-decoration: underline;
+  }
+  
+  .footer p {
+    margin-bottom: 0.5rem;
+  }
+  
+  .footer .text-center {
+    margin-top: 20px;
+  }
+  

@@ -7,10 +7,12 @@ from .database import db  # Correct import of the single db instance
 from .models import User  # Import the User model here
 
 from flask_wtf import CSRFProtect
+# from flask_babel import Babel
 
 csrf = CSRFProtect()
 migrate = Migrate()
 login_manager = LoginManager()
+# babel = Babel(app)
 
 def create_app():
     app = Flask(__name__)
