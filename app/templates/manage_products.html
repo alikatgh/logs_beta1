@@ -6,15 +6,20 @@
 </header>
 <div class="container">
     <form method="POST" action="{{ url_for('main.manage_products') }}">
-        <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" class="form-control" id="name" name="name" required>
+        <div id="product-fields">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control" id="name" name="name[]" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="price">Price</label>
+                    <input type="number" step="0.01" class="form-control" id="price" name="price[]" required>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="price">Price</label>
-            <input type="number" step="0.01" class="form-control" id="price" name="price" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Add Product</button>
+        <button type="button" class="btn btn-secondary" id="add-product">Add More Products</button>
+        <button type="submit" class="btn btn-primary">Save Products</button>
     </form>
     <hr>
     <h2>Existing Products</h2>
@@ -42,4 +47,19 @@
         </tbody>
     </table>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('#add-product').click(function() {
+            var productFields = $('#product-fields');
+            var newFields = productFields.children().first().clone();
+            newFields.find('input').val('');
+            productFields.append(newFields);
+        });
+
+        $(document).on('click', '.remove-row', function() {
+            $(this).closest('.form-row').remove();
+        });
+    });
+</script>
 {% endblock %}

@@ -115,12 +115,15 @@ def delete_supermarket(id):
 @login_required
 def manage_products():
     if request.method == 'POST':
-        name = request.form['name']
-        price = float(request.form['price'])
-        new_product = Product(name=name, price=price)
-        db.session.add(new_product)
+        names = request.form.getlist('name[]')
+        prices = request.form.getlist('price[]')
+        
+        for name, price in zip(names, prices):
+            new_product = Product(name=name, price=float(price))
+            db.session.add(new_product)
+        
         db.session.commit()
-        flash('Product added successfully', 'success')
+        flash('Products added successfully', 'success')
         return redirect(url_for('main.manage_products'))
     
     products = Product.query.all()
@@ -141,10 +144,19 @@ def edit_product(id):
 @main.route('/products/delete/<int:id>', methods=['POST'])
 @login_required
 def delete_product(id):
-    product = Product.query.get_or_404(id)
-    db.session.delete(product)
-    db.session.commit()
-    flash('Product deleted successfully', 'success')
+    try:
+        product = Product.query.get_or_404(id)
+        
+        # Delete associated delivery items
+        DeliveryItem.query.filter_by(product_id=id).delete()
+        
+        db.session.delete(product)
+        db.session.commit()
+        flash('Product deleted successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting product: {str(e)}', 'danger')
+    
     return redirect(url_for('main.manage_products'))
 
 @main.route('/deliveries/delete/<int:delivery_id>', methods=['POST'])
