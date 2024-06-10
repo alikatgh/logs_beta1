@@ -26,7 +26,10 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
+        print(f"Email: {form.email.data}")  # Debugging statement
+        print(f"Password: {form.password.data}")  # Debugging statement
         user = User.query.filter_by(email=form.email.data).first()
+        print(f"User: {user}")  # Debugging statement
         if user and user.check_password(form.password.data):
             login_user(user)
             flash('Logged in successfully.', 'success')
