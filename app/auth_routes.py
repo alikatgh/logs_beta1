@@ -1,5 +1,5 @@
 # app/auth_routes.py
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from .forms import RegistrationForm, LoginForm
 from .models import User
 from .database import db
@@ -14,27 +14,32 @@ def register():
         username = form.username.data
         email = form.email.data
         password = form.password.data
-        user = User(username=username, email=email)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
-        flash('Registration successful! You can now log in.', 'success')
-        return redirect(url_for('auth.login'))
+        user = User.query.filter_by(email=email).first()
+        if user:
+            flash('Email already exists. Please choose a different one.', 'danger')
+        else:
+            new_user = User(username=username, email=email)
+            new_user.set_password(password)
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Registration successful! You can now log in.', 'success')
+            return redirect(url_for('auth.login'))
     return render_template('register.html', form=form)
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        print(f"Email: {form.email.data}")  # Debugging statement
-        print(f"Password: {form.password.data}")  # Debugging statement
         user = User.query.filter_by(email=form.email.data).first()
-        print(f"User: {user}")  # Debugging statement
+        print(f"User: {user}")  # Debug statement
         if user and user.check_password(form.password.data):
             login_user(user)
+            print("User logged in successfully")  # Debug statement
             flash('Logged in successfully.', 'success')
-            return redirect(url_for('main.index'))
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('main.index'))
         else:
+            print("Invalid email or password")  # Debug statement
             flash('Invalid email or password.', 'danger')
     return render_template('login.html', form=form)
 
