@@ -1,31 +1,30 @@
-<footer class="footer">
-    <div class="container">
+<footer class="footer" style="margin-top: 2rem;">
+  <div class="container">
       <div class="row">
-        <div class="col-md-6">
-          <h5 style="font-weight: bold;">Links</h5>
-          <ul class="list-unstyled">
-            <li><a href="{{ url_for('main.index') }}">Home</a></li>
-            <li><a href="{{ url_for('main.deliveries') }}">Deliveries</a></li>
-            <li><a href="{{ url_for('main.manage_supermarkets') }}">Supermarkets</a></li>
-            <li><a href="{{ url_for('main.manage_products') }}">Products</a></li>
-            <li><a href="{{ url_for('main.report') }}">Reports</a></li>
-          </ul>
-        </div>
-        <div class="col-md-6">
-          <h5 style="font-weight: bold;">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" style="max-width: 30px; vertical-align: middle; margin-right: 10px;">
-            Khos Borogtsoi LLC
-          </h5>
-          <p>Address: Улаанбаатар Хот, Баянзүрх Дүүрэг, Дүнжингарав Хотхон 26 хороо 103-37/UB</p>
-          <p>Bayanzurkh District, Dunjingarav Khoroo 26 103-37</p>
-          <p>Email: contact@borgotsoi.com</p>
-          <p>Phone: (976) 88009995</p>
-        </div>
+          <div class="col-md-6">
+              <h5>Links</h5>
+              <ul class="list-unstyled">
+                  <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                  <li><a href="{{ url_for('main.deliveries') }}">Deliveries</a></li>
+                  <li><a href="{{ url_for('main.manage_supermarkets') }}">Supermarkets</a></li>
+                  <li><a href="{{ url_for('main.manage_products') }}">Products</a></li>
+                  <li><a href="{{ url_for('main.report') }}">Reports</a></li>
+              </ul>
+          </div>
+          <div class="col-md-6">
+              <h5>
+                  <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" style="max-width: 30px; vertical-align: middle; margin-right: 10px;">
+                  Khos Borogtsoi LLC
+              </h5>
+              <p>Address: Улаанбаатар Хот, Баянзүрх Дүүрэг, Дүнжингарав Хотхон 26 хороо 103-37/UB</p>
+              <p>Bayanzurkh District, Dunjingarav Khoroo 26 103-37</p>
+              <p>Email: contact@borgotsoi.com</p>
+              <p>Phone: (976) 88009995</p>
+          </div>
       </div>
       <hr>
       <div class="text-center">
-        <p>&copy; 2024 Borgotsoi Logistics System. All rights reserved.</p>
+          <p>&copy; 2024 Borgotsoi Logistics System. All rights reserved.</p>
       </div>
-    </div>
-  </footer>
-  
+  </div>
+</footer>
