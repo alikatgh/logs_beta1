@@ -4,10 +4,10 @@
   <div class="jumbotron text-center">
     <img src="{{ url_for('static', filename='images/logo.png') }}" class="img-fluid" alt="Logo" style="max-width: 150px;">
     <h1 class="display-4">Welcome to Borgotsoi Logistics System</h1>
-    <p class="lead">Manage your deliveries, supermarkets, and products efficiently.</p>
+    <p class="lead">Manage your deliveries, returns, supermarkets, and products efficiently.</p>
     <hr class="my-4">
     <div class="row">
-      <div class="col-md-4">
+      <div class="col-md-3">
         <div class="card">
           <div class="card-body text-center">
             <img src="{{ url_for('static', filename='images/cargo-truck.png') }}" class="img-fluid" alt="Create Delivery Icon" style="max-width: 50px;">
@@ -17,7 +17,17 @@
           </div>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-body text-center">
+            <img src="{{ url_for('static', filename='images/return.png') }}" class="img-fluid" alt="Record Return Icon" style="max-width: 50px;">
+            <h5 class="card-title mt-2">Record Return</h5>
+            <p class="card-text">Record a product return from a supermarket.</p>
+            <a href="{{ url_for('main.create_return') }}" class="btn btn-primary">Record Return</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
         <div class="card">
           <div class="card-body text-center">
             <img src="{{ url_for('static', filename='images/supermarket.png') }}" class="img-fluid" alt="Manage Supermarkets Icon" style="max-width: 50px;">
@@ -27,7 +37,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
         <div class="card">
           <div class="card-body text-center">
             <img src="{{ url_for('static', filename='images/products.png') }}" class="img-fluid" alt="Manage Products Icon" style="max-width: 50px;">

@@ -5,6 +5,7 @@ from .database import db
 from .models import Delivery, DeliveryItem, Supermarket, Subchain, Product, User
 from .forms import RegistrationForm, LoginForm
 from flask_login import login_user, logout_user, login_required, current_user
+import json 
 
 import pandas as pd
 import io
@@ -62,6 +63,49 @@ def create_delivery():
             flash(f'Error creating delivery: {str(e)}', 'danger')
 
     return render_template('create_delivery.html', products=products, supermarkets=supermarkets)
+
+@main.route('/returns/create', methods=['GET', 'POST'])
+@login_required
+def create_return():
+    products = Product.query.all()
+    supermarkets = Supermarket.query.all()
+
+    if request.method == 'POST':
+        delivery_date = datetime.strptime(request.form['delivery_date'], '%Y-%m-%d')
+        supermarket_id = request.form.get('supermarket_id')
+        subchain_id = request.form.get('subchain')
+
+        product_ids = request.form.getlist('product_id[]')
+        quantities = request.form.getlist('quantity[]')
+        prices = request.form.getlist('price[]')
+
+        if not supermarket_id:
+            flash('Please select a supermarket', 'danger')
+            return redirect(url_for('main.create_return'))
+
+        new_return = Delivery(
+            supermarket_id=supermarket_id,
+            subchain_id=subchain_id,
+            delivery_date=delivery_date,
+            is_return=True
+        )
+        db.session.add(new_return)
+        db.session.flush()
+
+        for product_id, quantity, price in zip(product_ids, quantities, prices):
+            new_item = DeliveryItem(
+                delivery_id=new_return.id,
+                product_id=product_id,
+                quantity=quantity,
+                price=price
+            )
+            db.session.add(new_item)
+
+        db.session.commit()
+        flash('Return created successfully', 'success')
+        return redirect(url_for('main.report'))
+    
+    return render_template('create_return.html', products=products, supermarkets=supermarkets)
 
 @main.route('/deliveries', methods=['GET', 'POST'])
 @login_required
@@ -227,7 +271,14 @@ def report():
     if request.method == 'POST':
         # Handle export to Excel
         data = request.form.get('data')
-        df = pd.read_json(data)  # Assuming the data is in JSON format
+        data = json.loads(data)
+        
+        deliveries_data = data['deliveries']
+        returns_data = data['returns']
+        
+        report_data = deliveries_data + returns_data
+        df = pd.DataFrame(report_data)
+        
         output = io.BytesIO()
         writer = pd.ExcelWriter(output, engine='xlsxwriter')
         df.to_excel(writer, index=False, sheet_name='Report')
@@ -235,21 +286,35 @@ def report():
         output.seek(0)
         return send_file(output, download_name='report.xlsx', as_attachment=True)
 
-    deliveries = Delivery.query.all()
-    report_data = []
-    for delivery in deliveries:
-        for item in delivery.items:
-            subchain = Subchain.query.get(delivery.subchain_id)
-            report_data.append({
-                'Delivery Date': delivery.delivery_date.strftime('%Y-%m-%d'),
-                'Supermarket': delivery.supermarket.name,
-                'Subchain': subchain.name if subchain else 'N/A',
-                'Product': item.product.name,
-                'Quantity': item.quantity,
-                'Price': item.price,
-                'Total': item.quantity * item.price
-            })
-    return render_template('report.html', report_data=report_data)
+    deliveries = Delivery.query.filter_by(is_return=False).all()
+    returns = Delivery.query.filter_by(is_return=True).all()
+    
+    def serialize_delivery(delivery):
+        return {
+            'id': delivery.id,
+            'delivery_date': delivery.delivery_date.strftime('%Y-%m-%d'),
+            'supermarket': delivery.supermarket.name,
+            'subchain': delivery.subchain.name if delivery.subchain else 'N/A',
+            'items': [
+                {
+                    'product': item.product.name,
+                    'quantity': item.quantity,
+                    'price': item.price
+                }
+                for item in delivery.items
+            ]
+        }
+    
+    deliveries_data = [serialize_delivery(delivery) for delivery in deliveries]
+    returns_data = [serialize_delivery(return_item) for return_item in returns]
+    
+    print("Deliveries Data:")
+    print(deliveries_data)
+    print("Returns Data:")
+    print(returns_data)
+    
+    return render_template('report.html', deliveries=deliveries_data, returns=returns_data)
+
 
 # Register, login, and logout routes
 @auth.route('/register', methods=['GET', 'POST'])

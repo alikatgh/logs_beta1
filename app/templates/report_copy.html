@@ -20,12 +20,12 @@
         </thead>
         <tbody>
             {% for delivery in deliveries %}
-                {% for item in delivery['items'] %}
+                {% for item in delivery.items %}
                     <tr>
-                        <td>{{ delivery.delivery_date }}</td>
-                        <td>{{ delivery.supermarket }}</td>
-                        <td>{{ delivery.subchain }}</td>
-                        <td>{{ item.product }}</td>
+                        <td>{{ delivery.delivery_date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ delivery.supermarket.name }}</td>
+                        <td>{{ delivery.subchain.name if delivery.subchain else 'N/A' }}</td>
+                        <td>{{ item.product.name }}</td>
                         <td>{{ item.quantity }}</td>
                         <td>{{ item.price }}</td>
                         <td>{{ item.quantity * item.price }}</td>
@@ -50,12 +50,12 @@
         </thead>
         <tbody>
             {% for return in returns %}
-                {% for item in return[items] %}
+                {% for item in return.items %}
                     <tr>
-                        <td>{{ return.delivery_date }}</td>
-                        <td>{{ return.supermarket }}</td>
-                        <td>{{ return.subchain }}</td>
-                        <td>{{ item.product }}</td>
+                        <td>{{ return.delivery_date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ return.supermarket.name }}</td>
+                        <td>{{ return.subchain.name if return.subchain else 'N/A' }}</td>
+                        <td>{{ item.product.name }}</td>
                         <td>{{ item.quantity }}</td>
                         <td>{{ item.price }}</td>
                         <td>{{ item.quantity * item.price }}</td>
@@ -73,8 +73,15 @@
 
 <script>
     function prepareData() {
-        const deliveries = JSON.parse('{{ deliveries | tojson | safe }}');
-        const returns = JSON.parse('{{ returns | tojson | safe }}');
+        // old constants
+        // const _deliveries = JSON.parse('{{ deliveries | tojson | safe }}');
+        // const _returns = JSON.parse('{{ returns | tojson | safe }}');
+        
+        // const deliveries = JSON.parse('{{ deliveries }}');
+        // const returns = JSON.parse('{{ returns }}');
+
+        const deliveries = JSON.parse('{{ deliveries | tojson }}');
+        const returns = JSON.parse('{{ returns | tojson }}');
         const data = {
             deliveries: deliveries,
             returns: returns

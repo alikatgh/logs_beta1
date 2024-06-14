@@ -30,6 +30,7 @@ class Delivery(db.Model):
     delivery_date = db.Column(db.Date, nullable=False)
     supermarket_id = db.Column(db.Integer, db.ForeignKey('supermarket.id'), nullable=False)
     subchain_id = db.Column(db.Integer, db.ForeignKey('subchain.id'), nullable=True)
+    is_return = db.Column(db.Boolean, default=False)
     supermarket = db.relationship('Supermarket', back_populates='deliveries')
     subchain = db.relationship('Subchain', backref='deliveries')
     items = db.relationship('DeliveryItem', back_populates='delivery', cascade='all, delete-orphan')

@@ -16,6 +16,8 @@ login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__)
+    # from .json_encoder import CustomJSONEncoder
+    # app.json_encoder = CustomJSONEncoder
     app.config.from_object('config')
 
     # Initialize SQLAlchemy with the app
