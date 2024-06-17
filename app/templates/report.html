@@ -6,7 +6,7 @@
 </header>
 <main>
     <h2>Deliveries</h2>
-    <table class="table table-striped table-hover mt-4">
+    <table class="table table-striped table-hover mt-4" id="deliveries-table">
         <thead>
             <tr>
                 <th>Delivery Date</th>
@@ -19,24 +19,12 @@
             </tr>
         </thead>
         <tbody>
-            {% for delivery in deliveries %}
-                {% for item in delivery['items'] %}
-                    <tr>
-                        <td>{{ delivery.delivery_date }}</td>
-                        <td>{{ delivery.supermarket }}</td>
-                        <td>{{ delivery.subchain }}</td>
-                        <td>{{ item.product }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>{{ item.price }}</td>
-                        <td>{{ item.quantity * item.price }}</td>
-                    </tr>
-                {% endfor %}
-            {% endfor %}
+            <!-- Deliveries data will be populated here -->
         </tbody>
     </table>
 
     <h2>Returns</h2>
-    <table class="table table-striped table-hover mt-4">
+    <table class="table table-striped table-hover mt-4" id="returns-table">
         <thead>
             <tr>
                 <th>Return Date</th>
@@ -49,19 +37,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for return in returns %}
-                {% for item in return[items] %}
-                    <tr>
-                        <td>{{ return.delivery_date }}</td>
-                        <td>{{ return.supermarket }}</td>
-                        <td>{{ return.subchain }}</td>
-                        <td>{{ item.product }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>{{ item.price }}</td>
-                        <td>{{ item.quantity * item.price }}</td>
-                    </tr>
-                {% endfor %}
-            {% endfor %}
+            <!-- Returns data will be populated here -->
         </tbody>
     </table>
 
@@ -72,15 +48,93 @@
 </main>
 
 <script>
-    function prepareData() {
-        const deliveries = JSON.parse('{{ deliveries | tojson | safe }}');
-        const returns = JSON.parse('{{ returns | tojson | safe }}');
-        const data = {
-            deliveries: deliveries,
-            returns: returns
-        };
-        document.getElementById('data').value = JSON.stringify(data);
-    }
+    // Parse the JSON data
+const deliveries = JSON.parse('{{ deliveries | tojson | safe }}');
+const returns = JSON.parse('{{ returns | tojson | safe }}');
+
+// Function to populate the deliveries table
+function populateDeliveriesTable() {
+    const tableBody = document.querySelector('#deliveries-table tbody');
+    tableBody.innerHTML = '';
+
+    deliveries.forEach(delivery => {
+        delivery.items.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${delivery.delivery_date}</td>
+                <td>${delivery.supermarket.name}</td>
+                <td>${delivery.subchain ? delivery.subchain.name : 'N/A'}</td>
+                <td>${item.product.name}</td>
+                <td>${item.quantity}</td>
+                <td>${item.price}</td>
+                <td>${item.quantity * item.price}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    });
+}
+
+// Function to populate the returns table
+function populateReturnsTable() {
+    const tableBody = document.querySelector('#returns-table tbody');
+    tableBody.innerHTML = '';
+
+    returns.forEach(returnItem => {
+        returnItem.items.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${returnItem.delivery_date}</td>
+                <td>${returnItem.supermarket.name}</td>
+                <td>${returnItem.subchain ? returnItem.subchain.name : 'N/A'}</td>
+                <td>${item.product.name}</td>
+                <td>${item.quantity}</td>
+                <td>${item.price}</td>
+                <td>${item.quantity * item.price}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    });
+}
+
+// Call the functions to populate the tables
+populateDeliveriesTable();
+populateReturnsTable();
+
+function prepareData() {
+    let allData = [];
+
+    deliveries.forEach(delivery => {
+        delivery.items.forEach(item => {
+            allData.push({
+                'Type': 'Delivery',
+                'Date': delivery.delivery_date,
+                'Supermarket': delivery.supermarket.name,
+                'Subchain': delivery.subchain ? delivery.subchain.name : 'N/A',
+                'Product': item.product.name,
+                'Quantity': item.quantity,
+                'Price': item.price,
+                'Total': item.quantity * item.price
+            });
+        });
+    });
+
+    returns.forEach(returnItem => {
+        returnItem.items.forEach(item => {
+            allData.push({
+                'Type': 'Return',
+                'Date': returnItem.delivery_date,
+                'Supermarket': returnItem.supermarket.name,
+                'Subchain': returnItem.subchain ? returnItem.subchain.name : 'N/A',
+                'Product': item.product.name,
+                'Quantity': item.quantity,
+                'Price': item.price,
+                'Total': item.quantity * item.price
+            });
+        });
+    });
+
+    document.getElementById('data').value = JSON.stringify(allData);
+}
 </script>
 
 {% endblock %}

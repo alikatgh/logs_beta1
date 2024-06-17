@@ -72,7 +72,6 @@ def create_return():
 
     if request.method == 'POST':
         delivery_date = datetime.strptime(request.form['delivery_date'], '%Y-%m-%d')
-        return_date = datetime.strptime(request.form['return_date'], '%Y-%m-%d')
         supermarket_id = request.form.get('supermarket_id')
         subchain_id = request.form.get('subchain')
 
@@ -88,50 +87,25 @@ def create_return():
             supermarket_id=supermarket_id,
             subchain_id=subchain_id,
             delivery_date=delivery_date,
-            return_date=return_date,
             is_return=True
         )
         db.session.add(new_return)
-        db.session.flush()  # Flush the session to generate the new_return.id
+        db.session.flush()
 
-        try:
-            for product_id, quantity, price in zip(product_ids, quantities, prices):
-                new_item = DeliveryItem(
-                    delivery_id=new_return.id,
-                    product_id=product_id,
-                    quantity=quantity,
-                    price=price
-                )
-                db.session.add(new_item)
+        for product_id, quantity, price in zip(product_ids, quantities, prices):
+            new_item = DeliveryItem(
+                delivery_id=new_return.id,
+                product_id=product_id,
+                quantity=quantity,
+                price=price
+            )
+            db.session.add(new_item)
 
-            db.session.commit()
-            flash('Return created successfully', 'success')
-            return redirect(url_for('main.returns'))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error creating return: {str(e)}', 'danger')
-
-    return render_template('create_return.html', products=products, supermarkets=supermarkets)
-
-@main.route('/returns/<int:return_id>', methods=['GET'])
-@login_required
-def return_details(return_id):
-    return_item = Delivery.query.get_or_404(return_id)
-    return render_template('return_details.html', return_item=return_item)
-@main.route('/returns/delete/<int:return_id>', methods=['POST'])
-@login_required
-def delete_return(return_id):
-    try:
-        return_item = Delivery.query.get_or_404(return_id)
-        for item in return_item.items:
-            db.session.delete(item)
-        db.session.delete(return_item)
         db.session.commit()
-        flash('Return deleted successfully', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error deleting return: {str(e)}', 'danger')
-    return redirect(url_for('main.returns'))
+        flash('Return created successfully', 'success')
+        return redirect(url_for('main.report'))
+    
+    return render_template('create_return.html', products=products, supermarkets=supermarkets)
 
 @main.route('/deliveries', methods=['GET', 'POST'])
 @login_required
@@ -142,16 +116,6 @@ def deliveries():
             return redirect(url_for('main.delete_delivery', delivery_id=delivery_id))
     deliveries = Delivery.query.all()
     return render_template('deliveries.html', deliveries=deliveries)
-
-# ALL ABOUT RETURNS
-
-@main.route('/returns', methods=['GET'])
-@login_required
-def returns():
-    returns = Delivery.query.filter_by(is_return=True).all()
-    for return_item in returns:
-        return_item.return_date = return_item.delivery_date  
-    return render_template('returns.html', returns=returns)
 
 @main.route('/deliveries/<int:delivery_id>', methods=['GET'])
 @login_required
@@ -305,25 +269,23 @@ def delete_delivery(delivery_id):
 @login_required
 def report():
     if request.method == 'POST':
+        # Handle export to Excel
         data = request.form.get('data')
-        if not data:
-            flash('No data received for export.', 'warning')
-            return redirect(url_for('main.report'))
+        data = json.loads(data)
         
-        try:
-            report_data = json.loads(data)
-            df = pd.DataFrame(report_data)
-            
-            output = io.BytesIO()
-            writer = pd.ExcelWriter(output, engine='xlsxwriter')
-            df.to_excel(writer, index=False, sheet_name='Report')
-            writer.close()
-            output.seek(0)
-            return send_file(output, download_name='report.xlsx', as_attachment=True)
-        except json.JSONDecodeError:
-            flash('Invalid data format.', 'danger')
-            return redirect(url_for('main.report'))
+        deliveries_data = data['deliveries']
+        returns_data = data['returns']
         
+        report_data = deliveries_data + returns_data
+        df = pd.DataFrame(report_data)
+        
+        output = io.BytesIO()
+        writer = pd.ExcelWriter(output, engine='xlsxwriter')
+        df.to_excel(writer, index=False, sheet_name='Report')
+        writer.close()
+        output.seek(0)
+        return send_file(output, download_name='report.xlsx', as_attachment=True)
+
     deliveries = Delivery.query.filter_by(is_return=False).all()
     returns = Delivery.query.filter_by(is_return=True).all()
     
@@ -346,7 +308,13 @@ def report():
     deliveries_data = [serialize_delivery(delivery) for delivery in deliveries]
     returns_data = [serialize_delivery(return_item) for return_item in returns]
     
-    return render_template('report.html', deliveries=json.dumps(deliveries_data), returns=json.dumps(returns_data))
+    print("Deliveries Data:")
+    print(deliveries_data)
+    print("Returns Data:")
+    print(returns_data)
+    
+    return render_template('report.html', deliveries=deliveries_data, returns=returns_data)
+
 
 # Register, login, and logout routes
 @auth.route('/register', methods=['GET', 'POST'])

@@ -36,6 +36,7 @@
                 <tr>
                     <th>Product</th>
                     <th>Quantity</th>
+                    <th>Price</th>
                     <th>Actions</th> 
                 </tr>
             </thead>
@@ -45,12 +46,15 @@
                         <select class="form-control product-select" name="product_id[]" required>
                             <option value="" disabled selected>Choose Product</option>
                             {% for product in products %} 
-                                <option value="{{ product.id }}">{{ product.name }}</option>
+                                <option value="{{ product.id }}" data-price="{{ product.price }}">{{ product.name }}</option>
                             {% endfor %}
                         </select>
                     </td>
                     <td>
                         <input type="number" class="form-control quantity-input" name="quantity[]" placeholder="Quantity" required>
+                    </td>
+                    <td>
+                        <input type="number" step="0.01" class="form-control price-input" name="price[]" placeholder="Price" required>
                     </td>
                     <td><button type="button" class="btn btn-danger remove-row">Remove</button></td>
                 </tr>
@@ -74,11 +78,12 @@
           <select class="form-control product-select" name="product_id[]" required>
             <option value="" disabled selected>Choose Product</option>
             {% for product in products %}
-                <option value="{{ product.id }}">{{ product.name }}</option>
+                <option value="{{ product.id }}" data-price="{{ product.price }}">{{ product.name }}</option>
             {% endfor %}
           </select>
         </td>
         <td><input type="number" class="form-control quantity-input" name="quantity[]" placeholder="Quantity" required></td>
+        <td><input type="number" step="0.01" class="form-control price-input" name="price[]" placeholder="Price" required></td>
         <td><button type="button" class="btn btn-danger remove-row">Remove</button></td>
       `;
       return newRow;
@@ -108,8 +113,9 @@
         rows.forEach(row => {
             const productSelect = row.querySelector('.product-select');
             const quantityInput = row.querySelector('.quantity-input');
+            const priceInput = row.querySelector('.price-input');
             
-            if (productSelect.value === "" || quantityInput.value === "") {
+            if (productSelect.value === "" || quantityInput.value === "" || priceInput.value === "") {
                 emptyRows = true;
                 row.remove();
             }
@@ -118,6 +124,15 @@
         if (emptyRows) {
             e.preventDefault();
             alert('Please fill out all product fields or remove empty rows.');
+        }
+    });
+
+    // Update price input based on selected product
+    document.addEventListener('change', function (e) {
+        if (e.target && e.target.classList.contains('product-select')) {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const priceInput = e.target.closest('tr').querySelector('.price-input');
+            priceInput.value = selectedOption.getAttribute('data-price');
         }
     });
 

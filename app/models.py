@@ -28,6 +28,7 @@ class Delivery(db.Model):
     __tablename__ = 'delivery'
     id = db.Column(db.Integer, primary_key=True)
     delivery_date = db.Column(db.Date, nullable=False)
+    return_date = db.Column(db.Date, nullable=True)  # Add this line
     supermarket_id = db.Column(db.Integer, db.ForeignKey('supermarket.id'), nullable=False)
     subchain_id = db.Column(db.Integer, db.ForeignKey('subchain.id'), nullable=True)
     is_return = db.Column(db.Boolean, default=False)
@@ -36,6 +37,7 @@ class Delivery(db.Model):
     items = db.relationship('DeliveryItem', back_populates='delivery', cascade='all, delete-orphan')
 
 class DeliveryItem(db.Model):
+    __tablename__ = 'delivery_item'  # Add this line
     id = db.Column(db.Integer, primary_key=True)
     delivery_id = db.Column(db.Integer, db.ForeignKey('delivery.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
