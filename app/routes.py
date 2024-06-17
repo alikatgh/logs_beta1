@@ -305,48 +305,49 @@ def delete_delivery(delivery_id):
 @login_required
 def report():
     if request.method == 'POST':
-        data = request.form.get('data')
-        if not data:
-            flash('No data received for export.', 'warning')
-            return redirect(url_for('main.report'))
+        deliveries = Delivery.query.filter_by(is_return=False).all()
+        returns = Delivery.query.filter_by(is_return=True).all()
         
-        try:
-            report_data = json.loads(data)
-            df = pd.DataFrame(report_data)
-            
-            output = io.BytesIO()
-            writer = pd.ExcelWriter(output, engine='xlsxwriter')
-            df.to_excel(writer, index=False, sheet_name='Report')
-            writer.close()
-            output.seek(0)
-            return send_file(output, download_name='report.xlsx', as_attachment=True)
-        except json.JSONDecodeError:
-            flash('Invalid data format.', 'danger')
-            return redirect(url_for('main.report'))
+        data = []
+        for delivery in deliveries:
+            for item in delivery.items:
+                data.append([
+                    'Delivery',
+                    delivery.delivery_date.strftime('%Y-%m-%d'),
+                    delivery.supermarket.name,
+                    delivery.subchain.name if delivery.subchain else 'N/A',
+                    item.product.name,
+                    item.quantity,
+                    item.price
+                ])
         
+        for return_item in returns:
+            for item in return_item.items:
+                data.append([
+                    'Return',
+                    return_item.return_date.strftime('%Y-%m-%d'),
+                    return_item.supermarket.name,
+                    return_item.subchain.name if return_item.subchain else 'N/A',
+                    item.product.name,
+                    item.quantity,
+                    item.price
+                ])
+        
+        df = pd.DataFrame(data, columns=['Type', 'Date', 'Supermarket', 'Subchain', 'Product', 'Quantity', 'Price'])
+        
+        output = io.BytesIO()
+        writer = pd.ExcelWriter(output, engine='xlsxwriter')
+        df.to_excel(writer, index=False, sheet_name='Report')
+        writer.close()
+        output.seek(0)
+        
+        return send_file(output, download_name='report.xlsx', as_attachment=True)
+    
     deliveries = Delivery.query.filter_by(is_return=False).all()
     returns = Delivery.query.filter_by(is_return=True).all()
     
-    def serialize_delivery(delivery):
-        return {
-            'id': delivery.id,
-            'delivery_date': delivery.delivery_date.strftime('%Y-%m-%d'),
-            'supermarket': delivery.supermarket.name,
-            'subchain': delivery.subchain.name if delivery.subchain else 'N/A',
-            'items': [
-                {
-                    'product': item.product.name,
-                    'quantity': item.quantity,
-                    'price': item.price
-                }
-                for item in delivery.items
-            ]
-        }
-    
-    deliveries_data = [serialize_delivery(delivery) for delivery in deliveries]
-    returns_data = [serialize_delivery(return_item) for return_item in returns]
-    
-    return render_template('report.html', deliveries=json.dumps(deliveries_data), returns=json.dumps(returns_data))
+    return render_template('report.html', deliveries=deliveries, returns=returns)
+
 
 # Register, login, and logout routes
 @auth.route('/register', methods=['GET', 'POST'])
