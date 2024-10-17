@@ -1,11 +1,12 @@
 # app/routes.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, send_file
+from urllib.parse import urlparse
 from datetime import datetime
 from .database import db
 from .models import Delivery, DeliveryItem, Supermarket, Subchain, Product, User
 from .forms import RegistrationForm, LoginForm
 from flask_login import login_user, logout_user, login_required, current_user
-import json 
+import json
 
 import pandas as pd
 import io
@@ -13,10 +14,12 @@ import io
 main = Blueprint('main', __name__)
 auth = Blueprint('auth', __name__)
 
+
 @main.route('/')
 @login_required
 def index():
     return render_template('index.html')
+
 
 @main.route('/deliveries/create', methods=['GET', 'POST'])
 @login_required
@@ -26,7 +29,8 @@ def create_delivery():
 
     if request.method == 'POST':
         try:
-            delivery_date = datetime.strptime(request.form['delivery_date'], '%Y-%m-%d')
+            delivery_date = datetime.strptime(
+                request.form['delivery_date'], '%Y-%m-%d')
             supermarket_id = request.form.get('supermarket_id')
             subchain_id = request.form.get('subchain')
 
@@ -64,6 +68,7 @@ def create_delivery():
 
     return render_template('create_delivery.html', products=products, supermarkets=supermarkets)
 
+
 @main.route('/returns/create', methods=['GET', 'POST'])
 @login_required
 def create_return():
@@ -71,8 +76,10 @@ def create_return():
     supermarkets = Supermarket.query.all()
 
     if request.method == 'POST':
-        delivery_date = datetime.strptime(request.form['delivery_date'], '%Y-%m-%d')
-        return_date = datetime.strptime(request.form['return_date'], '%Y-%m-%d')
+        delivery_date = datetime.strptime(
+            request.form['delivery_date'], '%Y-%m-%d')
+        return_date = datetime.strptime(
+            request.form['return_date'], '%Y-%m-%d')
         supermarket_id = request.form.get('supermarket_id')
         subchain_id = request.form.get('subchain')
 
@@ -113,11 +120,14 @@ def create_return():
 
     return render_template('create_return.html', products=products, supermarkets=supermarkets)
 
+
 @main.route('/returns/<int:return_id>', methods=['GET'])
 @login_required
 def return_details(return_id):
     return_item = Delivery.query.get_or_404(return_id)
     return render_template('return_details.html', return_item=return_item)
+
+
 @main.route('/returns/delete/<int:return_id>', methods=['POST'])
 @login_required
 def delete_return(return_id):
@@ -133,6 +143,7 @@ def delete_return(return_id):
         flash(f'Error deleting return: {str(e)}', 'danger')
     return redirect(url_for('main.returns'))
 
+
 @main.route('/deliveries', methods=['GET', 'POST'])
 @login_required
 def deliveries():
@@ -145,19 +156,22 @@ def deliveries():
 
 # ALL ABOUT RETURNS
 
+
 @main.route('/returns', methods=['GET'])
 @login_required
 def returns():
     returns = Delivery.query.filter_by(is_return=True).all()
     for return_item in returns:
-        return_item.return_date = return_item.delivery_date  
+        return_item.return_date = return_item.delivery_date
     return render_template('returns.html', returns=returns)
+
 
 @main.route('/deliveries/<int:delivery_id>', methods=['GET'])
 @login_required
 def delivery_details(delivery_id):
     delivery = Delivery.query.get_or_404(delivery_id)
     return render_template('delivery_details.html', delivery=delivery)
+
 
 @main.route('/supermarkets', methods=['GET', 'POST'])
 @login_required
@@ -185,6 +199,7 @@ def manage_supermarkets():
     subchains = Subchain.query.all()
     return render_template('manage_supermarkets.html', supermarkets=supermarkets, subchains=subchains)
 
+
 @main.route('/supermarkets/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_supermarket(id):
@@ -197,6 +212,7 @@ def edit_supermarket(id):
         return redirect(url_for('main.manage_supermarkets'))
     return render_template('edit_supermarket.html', supermarket=supermarket)
 
+
 @main.route('/supermarkets/delete/<int:id>', methods=['POST'])
 @login_required
 def delete_supermarket(id):
@@ -207,6 +223,7 @@ def delete_supermarket(id):
     return redirect(url_for('main.manage_supermarkets'))
 
 # SUBCHAINS
+
 
 @main.route('/subchains/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -221,6 +238,7 @@ def edit_subchain(id):
     supermarkets = Supermarket.query.all()
     return render_template('edit_subchain.html', subchain=subchain, supermarkets=supermarkets)
 
+
 @main.route('/subchains/delete/<int:id>', methods=['POST'])
 @login_required
 def delete_subchain(id):
@@ -230,11 +248,14 @@ def delete_subchain(id):
     flash('Subchain deleted successfully', 'success')
     return redirect(url_for('main.manage_supermarkets'))
 
+
 @main.route('/get_subchains/<int:supermarket_id>')
 def get_subchains(supermarket_id):
     subchains = Subchain.query.filter_by(supermarket_id=supermarket_id).all()
-    subchain_data = [{'id': subchain.id, 'name': subchain.name} for subchain in subchains]
+    subchain_data = [{'id': subchain.id, 'name': subchain.name}
+                     for subchain in subchains]
     return jsonify(subchain_data)
+
 
 @main.route('/products', methods=['GET', 'POST'])
 @login_required
@@ -242,17 +263,18 @@ def manage_products():
     if request.method == 'POST':
         names = request.form.getlist('name[]')
         prices = request.form.getlist('price[]')
-        
+
         for name, price in zip(names, prices):
             new_product = Product(name=name, price=float(price))
             db.session.add(new_product)
-        
+
         db.session.commit()
         flash('Products added successfully', 'success')
         return redirect(url_for('main.manage_products'))
-    
+
     products = Product.query.all()
     return render_template('manage_products.html', products=products)
+
 
 @main.route('/products/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -266,23 +288,25 @@ def edit_product(id):
         return redirect(url_for('main.manage_products'))
     return render_template('edit_product.html', product=product)
 
+
 @main.route('/products/delete/<int:id>', methods=['POST'])
 @login_required
 def delete_product(id):
     try:
         product = Product.query.get_or_404(id)
-        
+
         # Delete associated delivery items
         DeliveryItem.query.filter_by(product_id=id).delete()
-        
+
         db.session.delete(product)
         db.session.commit()
         flash('Product deleted successfully', 'success')
     except Exception as e:
         db.session.rollback()
         flash(f'Error deleting product: {str(e)}', 'danger')
-    
+
     return redirect(url_for('main.manage_products'))
+
 
 @main.route('/deliveries/delete/<int:delivery_id>', methods=['POST'])
 @login_required
@@ -301,13 +325,14 @@ def delete_delivery(delivery_id):
 
 # ABOUT REPORT
 
+
 @main.route('/report', methods=['GET', 'POST'])
 @login_required
 def report():
     if request.method == 'POST':
         deliveries = Delivery.query.filter_by(is_return=False).all()
         returns = Delivery.query.filter_by(is_return=True).all()
-        
+
         data = []
         for delivery in deliveries:
             for item in delivery.items:
@@ -320,7 +345,7 @@ def report():
                     item.quantity,
                     item.price
                 ])
-        
+
         for return_item in returns:
             for item in return_item.items:
                 data.append([
@@ -332,20 +357,21 @@ def report():
                     item.quantity,
                     item.price
                 ])
-        
-        df = pd.DataFrame(data, columns=['Type', 'Date', 'Supermarket', 'Subchain', 'Product', 'Quantity', 'Price'])
-        
+
+        df = pd.DataFrame(data, columns=[
+                          'Type', 'Date', 'Supermarket', 'Subchain', 'Product', 'Quantity', 'Price'])
+
         output = io.BytesIO()
         writer = pd.ExcelWriter(output, engine='xlsxwriter')
         df.to_excel(writer, index=False, sheet_name='Report')
         writer.close()
         output.seek(0)
-        
+
         return send_file(output, download_name='report.xlsx', as_attachment=True)
-    
+
     deliveries = Delivery.query.filter_by(is_return=False).all()
     returns = Delivery.query.filter_by(is_return=True).all()
-    
+
     return render_template('report.html', deliveries=deliveries, returns=returns)
 
 
@@ -365,18 +391,35 @@ def register():
         return redirect(url_for('auth.login'))
     return render_template('register.html', form=form)
 
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    print("Login route accessed")  # Debug print
     form = LoginForm()
     if form.validate_on_submit():
+        print("Form validated")  # Debug print
         user = User.query.filter_by(email=form.email.data).first()
+        print(f"User found: {user}")  # Debug print
         if user and user.check_password(form.password.data):
             login_user(user)
+            # Debug print
+            print(f"User {user.username} logged in successfully")
+            # Debug print
+            print(f"Is user authenticated? {current_user.is_authenticated}")
             flash('Logged in successfully.', 'success')
-            return redirect(url_for('main.index'))
+            next_page = request.args.get('next')
+            if not next_page or urlparse(next_page).netloc != '':
+                next_page = url_for('main.index')
+            print(f"Redirecting to: {next_page}")  # Debug print
+            return redirect(next_page)
         else:
+            print("Invalid email or password")  # Debug print
             flash('Invalid email or password.', 'danger')
+    else:
+        print("Form not validated")  # Debug print
+        print(f"Form errors: {form.errors}")  # Debug print
     return render_template('login.html', form=form)
+
 
 @auth.route('/logout')
 @login_required

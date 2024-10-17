@@ -1,8 +1,9 @@
-from json import JSONEncoder
-from flask.json import JSONEncoder
+from flask.json import jsonify
+from json import JSONEncoder as BaseJSONEncoder
 from .models import Delivery, DeliveryItem, Supermarket, Subchain, Product
 
-class CustomJSONEncoder(JSONEncoder):
+
+class CustomJSONEncoder(BaseJSONEncoder):
     def default(self, obj):
         if isinstance(obj, Delivery):
             return {

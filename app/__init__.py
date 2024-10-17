@@ -1,44 +1,55 @@
-# app/__init__.py
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
-from .database import db  # Correct import of the single db instance
-from .models import User  # Import the User model here
-
 from flask_wtf import CSRFProtect
-# from flask_babel import Babel
+from .database import db
+from .models import User
+import os
+from datetime import timedelta
 
 csrf = CSRFProtect()
 migrate = Migrate()
 login_manager = LoginManager()
-# babel = Babel(app)
+
+
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key'
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        'DATABASE_URL') or 'sqlite:///deliveries.db'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    LOGIN_VIEW = 'auth.login'
+    REMEMBER_COOKIE_DURATION = timedelta(days=7)
+    WTF_CSRF_ENABLED = True
+    SESSION_TYPE = 'filesystem'
+    PERMANENT_SESSION_LIFETIME = timedelta(days=7)
+
 
 def create_app():
     app = Flask(__name__)
-    # from .json_encoder import CustomJSONEncoder
-    # app.json_encoder = CustomJSONEncoder
-    app.config.from_object('config')
+    app.config.from_object(Config)
 
-    # Initialize SQLAlchemy with the app
+    # Initialize extensions
     db.init_app(app)
-    # Initialize Flask-Migrate with the app and SQLAlchemy db
     migrate.init_app(app, db)
-    # Initialize LoginManager with the app
     login_manager.init_app(app)
-    login_manager.login_view = 'auth.login'  # Set the default login view for @login_required
+    csrf.init_app(app)
 
-    with app.app_context():
-        db.create_all()
+    login_manager.login_view = 'auth.login'
 
-    # Import and register blueprints
+    # Register blueprints
     from .routes import main
     app.register_blueprint(main)
 
-    from .auth_routes import auth as auth_blueprint  # import your auth blueprint
-    app.register_blueprint(auth_blueprint, url_prefix='/auth')  # register the auth blueprint
+    from .auth_routes import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint, url_prefix='/auth')
+
+    # Create database tables
+    with app.app_context():
+        db.create_all()
 
     return app
+
 
 @login_manager.user_loader
 def load_user(user_id):
