@@ -1,6 +1,7 @@
 from app import db, create_app  # Import your app creation function and db
 from app.models import Supermarket, Product
 
+
 def seed_data():
     supermarket1 = Supermarket(name='Supermarket 1', address='Address 1')
     supermarket2 = Supermarket(name='Supermarket 2', address='Address 2')
@@ -14,6 +15,7 @@ def seed_data():
 
     db.session.commit()
     print("Data seeded successfully.")
+
 
 if __name__ == '__main__':
     app = create_app()  # Create an instance of your Flask app

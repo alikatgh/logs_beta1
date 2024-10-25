@@ -1,0 +1,25 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-{{ category|default('danger') }}">
+          <h4 class="card-title text-white mb-0">{{ title }}</h4>
+        </div>
+        <div class="card-body">
+          <p class="card-text">{{ message }}</p>
+          {% if show_home_link|default(true) %}
+          <a href="{{ url_for('main.index') }}" class="btn btn-primary"
+            >Return to Home</a
+          >
+          {% endif %} {% if show_back_button|default(true) %}
+          <button onclick="history.back()" class="btn btn-secondary">
+            Go Back
+          </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

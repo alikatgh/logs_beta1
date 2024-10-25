@@ -4,6 +4,7 @@
 <div class="container mt-4">
     <header class="page-title">
         <h1>Manage Supermarkets and Subchains</h1>
+        <p class="text-muted">Note: Supermarkets with existing deliveries cannot be deleted.</p>
     </header>
 
     <div class="row">
@@ -67,13 +68,16 @@
 <div class="modal fade" id="addSupermarketModal" tabindex="-1" role="dialog" aria-labelledby="addSupermarketModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
+            <!-- Modal content -->
             <div class="modal-header">
                 <h5 class="modal-title" id="addSupermarketModalLabel">Add Supermarket</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+            <!-- Include the form -->
             <form method="POST" action="{{ url_for('main.manage_supermarkets') }}">
+                {{ form.hidden_tag() }}  <!-- Include CSRF token -->
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="name">Supermarket Name</label>
@@ -98,13 +102,16 @@
     <div class="modal fade" id="editSupermarketModal{{ supermarket.id }}" tabindex="-1" role="dialog" aria-labelledby="editSupermarketModalLabel{{ supermarket.id }}" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
+                <!-- Modal content -->
                 <div class="modal-header">
                     <h5 class="modal-title" id="editSupermarketModalLabel{{ supermarket.id }}">Edit Supermarket</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+                <!-- Include the form -->
                 <form method="POST" action="{{ url_for('main.edit_supermarket', id=supermarket.id) }}">
+                    {{ form.hidden_tag() }}  <!-- Include CSRF token -->
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="name{{ supermarket.id }}">Supermarket Name</label>
@@ -130,6 +137,7 @@
     <div class="modal fade" id="deleteSupermarketModal{{ supermarket.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteSupermarketModalLabel{{ supermarket.id }}" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
+                <!-- Modal content -->
                 <div class="modal-header">
                     <h5 class="modal-title" id="deleteSupermarketModalLabel{{ supermarket.id }}">Delete Supermarket</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -138,10 +146,13 @@
                 </div>
                 <div class="modal-body">
                     Are you sure you want to delete the supermarket "{{ supermarket.name }}"?
+                    <p class="text-danger">Note: Supermarkets with existing deliveries cannot be deleted.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <!-- Include the form -->
                     <form method="POST" action="{{ url_for('main.delete_supermarket', id=supermarket.id) }}" style="display:inline;">
+                        {{ form.hidden_tag() }}  <!-- Include CSRF token -->
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
                 </div>
@@ -154,13 +165,16 @@
 <div class="modal fade" id="addSubchainModal" tabindex="-1" role="dialog" aria-labelledby="addSubchainModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
+            <!-- Modal content -->
             <div class="modal-header">
                 <h5 class="modal-title" id="addSubchainModalLabel">Add Subchain</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+            <!-- Include the form -->
             <form method="POST" action="{{ url_for('main.manage_supermarkets') }}">
+                {{ form.hidden_tag() }}  <!-- Include CSRF token -->
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="subchain_name">Subchain Name</label>
@@ -190,13 +204,16 @@
     <div class="modal fade" id="editSubchainModal{{ subchain.id }}" tabindex="-1" role="dialog" aria-labelledby="editSubchainModalLabel{{ subchain.id }}" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
+                <!-- Modal content -->
                 <div class="modal-header">
                     <h5 class="modal-title" id="editSubchainModalLabel{{ subchain.id }}">Edit Subchain</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+                <!-- Include the form -->
                 <form method="POST" action="{{ url_for('main.edit_subchain', id=subchain.id) }}">
+                    {{ form.hidden_tag() }}  <!-- Include CSRF token -->
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="subchain_name{{ subchain.id }}">Subchain Name</label>
@@ -206,7 +223,9 @@
                             <label for="supermarket_id{{ subchain.id }}">Supermarket</label>
                             <select class="form-control" id="supermarket_id{{ subchain.id }}" name="supermarket_id" required>
                                 {% for supermarket in supermarkets %}
-                                    <option value="{{ supermarket.id }}" {% if supermarket.id == subchain.supermarket.id %}selected{% endif %}>{{ supermarket.name }}</option>
+                                    <option value="{{ supermarket.id }}" {% if supermarket.id == subchain.supermarket.id %}selected{% endif %}>
+                                        {{ supermarket.name }}
+                                    </option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -226,6 +245,7 @@
     <div class="modal fade" id="deleteSubchainModal{{ subchain.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteSubchainModalLabel{{ subchain.id }}" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
+                <!-- Modal content -->
                 <div class="modal-header">
                     <h5 class="modal-title" id="deleteSubchainModalLabel{{ subchain.id }}">Delete Subchain</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -237,7 +257,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <!-- Include the form -->
                     <form method="POST" action="{{ url_for('main.delete_subchain', id=subchain.id) }}" style="display:inline;">
+                        {{ form.hidden_tag() }}  <!-- Include CSRF token -->
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
                 </div>

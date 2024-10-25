@@ -1,0 +1,97 @@
+.
+├── __pycache__
+│   ├── config.cpython-311.pyc
+│   └── run.cpython-311.pyc
+├── app
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-311.pyc
+│   │   ├── auth_routes.cpython-311.pyc
+│   │   ├── database.cpython-311.pyc
+│   │   ├── forms.cpython-311.pyc
+│   │   ├── json_encoder.cpython-311.pyc
+│   │   ├── models.cpython-311.pyc
+│   │   └── routes.cpython-311.pyc
+│   ├── auth_routes.py
+│   ├── database.py
+│   ├── forms.py
+│   ├── json_encoder.py
+│   ├── models
+│   │   └── user.py
+│   ├── models.py
+│   ├── routes.py
+│   ├── routes_copy.py
+│   ├── static
+│   │   ├── css
+│   │   │   └── styles.css
+│   │   ├── images
+│   │   │   ├── cargo-truck.png
+│   │   │   ├── logo.jpg
+│   │   │   ├── logo.png
+│   │   │   ├── products.png
+│   │   │   ├── return.png
+│   │   │   └── supermarket.png
+│   │   └── js
+│   │       └── app.js
+│   ├── templates
+│   │   ├── 404.html
+│   │   ├── 500.html
+│   │   ├── base.html
+│   │   ├── create_delivery.html
+│   │   ├── create_return.html
+│   │   ├── create_return_copy.html
+│   │   ├── csrf_error.html
+│   │   ├── deliveries.html
+│   │   ├── delivery_details.html
+│   │   ├── edit_products.html
+│   │   ├── edit_supermarket.html
+│   │   ├── footer.html
+│   │   ├── index.html
+│   │   ├── login.html
+│   │   ├── manage_products.html
+│   │   ├── manage_supermarkets.html
+│   │   ├── register.html
+│   │   ├── report.html
+│   │   ├── report_copy.html
+│   │   ├── return_details.html
+│   │   ├── returns.html
+│   │   └── test.html
+│   ├── test_extract.py
+│   └── utils
+│       ├── email.py
+│       ├── rate_limit.py
+│       └── security.py
+├── babel.cfg
+├── config.py
+├── create_db.py
+├── get-pip.py
+├── instance
+│   └── deliveries.db
+├── logs_private.code-workspace
+├── manage.py
+├── manage_db.py
+├── messages.pot
+├── migrations
+│   ├── README
+│   ├── __pycache__
+│   │   └── env.cpython-311.pyc
+│   ├── alembic.ini
+│   ├── env.py
+│   ├── script.py.mako
+│   └── versions
+├── project_structure.txt
+├── project_tree.txt
+├── requirements.txt
+├── run.py
+├── seed_data.py
+└── translations
+    ├── en
+    │   └── LC_MESSAGES
+    │       ├── messages.mo
+    │       └── messages.po
+    └── mn
+        └── LC_MESSAGES
+            ├── messages.mo
+            └── messages.po
+
+20 directories, 75 files

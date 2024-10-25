@@ -1,5 +1,4 @@
 from flask import (
-    Blueprint,
     render_template,
     redirect,
     url_for,
@@ -11,20 +10,18 @@ from flask import (
 from datetime import datetime
 from flask_login import login_user, logout_user, login_required, current_user
 
-# Change relative imports to absolute imports
-from app.forms import (
+# Change to relative imports
+from . import auth  # Import auth blueprint
+from ..forms import (
     RegistrationForm,
     LoginForm,
     ResetPasswordRequestForm,
     ResetPasswordForm,
 )
-from app.models import User, db
-from app.utils.security import is_safe_url, get_client_ip
-from app.utils.rate_limit import rate_limit
-from app.utils.email import send_password_reset_email
-
-# Configure blueprint
-auth = Blueprint("auth", __name__)
+from ..models import User, db
+from ..utils.security import is_safe_url, get_client_ip
+from ..utils.rate_limit import rate_limit
+from ..utils.email import send_password_reset_email
 
 
 def log_auth_event(event_type, user=None, success=True, details=None):
