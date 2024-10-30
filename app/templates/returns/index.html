@@ -27,12 +27,12 @@
         <td>{{ item.quantity }}</td>
         <td>
           <a
-            href="{{ url_for('main.return_details', return_id=return.id) }}"
+            href="{{ url_for('return.view', return_id=return.id) }}"
             class="btn btn-info btn-sm"
             >Details</a
           >
           <form
-            action="{{ url_for('main.delete_return', return_id=return.id) }}"
+            action="{{ url_for('return.delete', return_id=return.id) }}"
             method="POST"
             style="display: inline"
           >

@@ -1,17 +1,6 @@
 .
-├── __pycache__
-│   ├── config.cpython-311.pyc
-│   └── run.cpython-311.pyc
 ├── app
 │   ├── __init__.py
-│   ├── __pycache__
-│   │   ├── __init__.cpython-311.pyc
-│   │   ├── auth_routes.cpython-311.pyc
-│   │   ├── database.cpython-311.pyc
-│   │   ├── forms.cpython-311.pyc
-│   │   ├── json_encoder.cpython-311.pyc
-│   │   ├── models.cpython-311.pyc
-│   │   └── routes.cpython-311.pyc
 │   ├── auth_routes.py
 │   ├── database.py
 │   ├── forms.py
@@ -19,8 +8,17 @@
 │   ├── models
 │   │   └── user.py
 │   ├── models.py
-│   ├── routes.py
-│   ├── routes_copy.py
+│   ├── routes
+│   │   ├── __init__.py
+│   │   ├── api_routes.py
+│   │   ├── auth_routes.py
+│   │   ├── delivery_routes.py
+│   │   ├── error_handlers.py
+│   │   ├── main_routes.py
+│   │   ├── product_routes.py
+│   │   ├── report_routes.py
+│   │   ├── return_routes.py
+│   │   └── supermarket_routes.py
 │   ├── static
 │   │   ├── css
 │   │   │   └── styles.css
@@ -34,64 +32,78 @@
 │   │   └── js
 │   │       └── app.js
 │   ├── templates
-│   │   ├── 404.html
-│   │   ├── 500.html
+│   │   ├── auth
+│   │   │   ├── error.html
+│   │   │   └── login.html
 │   │   ├── base.html
 │   │   ├── create_delivery.html
-│   │   ├── create_return.html
 │   │   ├── create_return_copy.html
 │   │   ├── csrf_error.html
-│   │   ├── deliveries.html
+│   │   ├── deliveries
+│   │   │   ├── create.html
+│   │   │   ├── index.html
+│   │   │   └── view.html
 │   │   ├── delivery_details.html
-│   │   ├── edit_products.html
-│   │   ├── edit_supermarket.html
+│   │   ├── email
+│   │   │   ├── reset_password.html
+│   │   │   └── reset_password.txt
+│   │   ├── errors
+│   │   │   ├── 404.html
+│   │   │   ├── 500.html
+│   │   │   └── base_error.html
 │   │   ├── footer.html
 │   │   ├── index.html
-│   │   ├── login.html
-│   │   ├── manage_products.html
-│   │   ├── manage_supermarkets.html
+│   │   ├── products
+│   │   │   ├── index.html
+│   │   │   └── manage_products.html
 │   │   ├── register.html
-│   │   ├── report.html
 │   │   ├── report_copy.html
+│   │   ├── reports
+│   │   │   └── report.html
 │   │   ├── return_details.html
-│   │   ├── returns.html
+│   │   ├── returns
+│   │   │   ├── create.html
+│   │   │   └── index.html
+│   │   ├── supermarkets
+│   │   │   ├── index.html
+│   │   │   └── manage.html
 │   │   └── test.html
 │   ├── test_extract.py
 │   └── utils
+│       ├── decorators.py
 │       ├── email.py
 │       ├── rate_limit.py
 │       └── security.py
 ├── babel.cfg
 ├── config.py
 ├── create_db.py
+├── endpoint_updates.log
+├── flask_session
 ├── get-pip.py
 ├── instance
-│   └── deliveries.db
+│   ├── deliveries.db
+│   └── deliveries_dev.db
+├── logs
+│   └── app.log
 ├── logs_private.code-workspace
 ├── manage.py
 ├── manage_db.py
 ├── messages.pot
-├── migrations
-│   ├── README
-│   ├── __pycache__
-│   │   └── env.cpython-311.pyc
-│   ├── alembic.ini
-│   ├── env.py
-│   ├── script.py.mako
-│   └── versions
 ├── project_structure.txt
 ├── project_tree.txt
 ├── requirements.txt
 ├── run.py
 ├── seed_data.py
-└── translations
-    ├── en
-    │   └── LC_MESSAGES
-    │       ├── messages.mo
-    │       └── messages.po
-    └── mn
-        └── LC_MESSAGES
-            ├── messages.mo
-            └── messages.po
+├── translations
+│   ├── en
+│   │   └── LC_MESSAGES
+│   │       ├── messages.mo
+│   │       └── messages.po
+│   └── mn
+│       └── LC_MESSAGES
+│           ├── messages.mo
+│           └── messages.po
+├── update_routes.py
+└── uploads
 
-20 directories, 75 files
+27 directories, 80 files

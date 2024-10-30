@@ -65,7 +65,7 @@
         </tbody>
     </table>
 
-    <form method="POST" action="{{ url_for('main.report') }}">
+    <form method="POST" action="{{ url_for('report.generate_report') }}">
         <input type="hidden" name="data" id="data">
         <button type="submit" class="btn btn-success btn-lg" onclick="prepareData()">Export to Excel</button>
     </form>

@@ -76,7 +76,7 @@
                 </button>
             </div>
             <!-- Include the form -->
-            <form method="POST" action="{{ url_for('main.manage_supermarkets') }}">
+            <form method="POST" action="{{ url_for('supermarket.manage') }}">
                 {{ form.hidden_tag() }}  <!-- Include CSRF token -->
                 <div class="modal-body">
                     <div class="form-group">
@@ -110,7 +110,7 @@
                     </button>
                 </div>
                 <!-- Include the form -->
-                <form method="POST" action="{{ url_for('main.edit_supermarket', id=supermarket.id) }}">
+                <form method="POST" action="{{ url_for('supermarket.edit', id=supermarket.id) }}">
                     {{ form.hidden_tag() }}  <!-- Include CSRF token -->
                     <div class="modal-body">
                         <div class="form-group">
@@ -151,7 +151,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     <!-- Include the form -->
-                    <form method="POST" action="{{ url_for('main.delete_supermarket', id=supermarket.id) }}" style="display:inline;">
+                    <form method="POST" action="{{ url_for('supermarket.delete', id=supermarket.id) }}" style="display:inline;">
                         {{ form.hidden_tag() }}  <!-- Include CSRF token -->
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
@@ -173,7 +173,7 @@
                 </button>
             </div>
             <!-- Include the form -->
-            <form method="POST" action="{{ url_for('main.manage_supermarkets') }}">
+            <form method="POST" action="{{ url_for('supermarket.manage') }}">
                 {{ form.hidden_tag() }}  <!-- Include CSRF token -->
                 <div class="modal-body">
                     <div class="form-group">
@@ -212,7 +212,7 @@
                     </button>
                 </div>
                 <!-- Include the form -->
-                <form method="POST" action="{{ url_for('main.edit_subchain', id=subchain.id) }}">
+                <form method="POST" action="{{ url_for('supermarket.edit_subchain', id=subchain.id) }}">
                     {{ form.hidden_tag() }}  <!-- Include CSRF token -->
                     <div class="modal-body">
                         <div class="form-group">
@@ -258,7 +258,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     <!-- Include the form -->
-                    <form method="POST" action="{{ url_for('main.delete_subchain', id=subchain.id) }}" style="display:inline;">
+                    <form method="POST" action="{{ url_for('supermarket.delete_subchain', id=subchain.id) }}" style="display:inline;">
                         {{ form.hidden_tag() }}  <!-- Include CSRF token -->
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>

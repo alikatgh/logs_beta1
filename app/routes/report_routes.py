@@ -96,5 +96,5 @@ def generate_report():
     form = EmptyForm()
 
     return render_template(
-        "report.html", deliveries=deliveries, returns=returns, form=form
+        "reports/report.html", deliveries=deliveries, returns=returns, form=form
     )

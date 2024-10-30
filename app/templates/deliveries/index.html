@@ -3,9 +3,9 @@
   <h1>Deliveries</h1>
 </header>
 <div class="container">
-  {% if request.endpoint == 'main.deliveries' %}
+  {% if request.endpoint == 'delivery.index' %}
   <div class="text-right mb-3">
-    <a href="{{ url_for('main.create_delivery') }}" class="btn btn-primary"
+    <a href="{{ url_for('delivery.create') }}" class="btn btn-primary"
       >Create Delivery</a
     >
   </div>
@@ -34,7 +34,7 @@
         <td>{{ item.quantity * item.price }}</td>
         <td>
           <a
-            href="{{ url_for('main.delivery_details', delivery_id=delivery.id) }}"
+            href="{{ url_for('delivery.view', delivery_id=delivery.id) }}"
             class="btn btn-info btn-sm"
             >Details</a
           >
@@ -113,9 +113,10 @@
       var deliveryId = button.data("id");
       var modal = $(this);
       modal.find("#deliveryId").val(deliveryId);
+      // Update the form action to use the delivery blueprint
       modal
         .find("#deleteForm")
-        .attr("action", "/deliveries/delete/" + deliveryId);
+        .attr("action", "/deliveries/" + deliveryId + "/delete");
     });
   });
 </script>

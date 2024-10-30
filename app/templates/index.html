@@ -13,7 +13,7 @@
             <img src="{{ url_for('static', filename='images/cargo-truck.png') }}" class="img-fluid" alt="Create Delivery Icon" style="max-width: 50px;">
             <h5 class="card-title mt-2">Create Delivery</h5>
             <p class="card-text">Create a new delivery and assign products to it.</p>
-            <a href="{{ url_for('main.create_delivery') }}" class="btn btn-primary">Create Delivery</a>
+            <a href="{{ url_for('delivery.create') }}" class="btn btn-primary">Create Delivery</a>
           </div>
         </div>
       </div>
@@ -23,7 +23,7 @@
             <img src="{{ url_for('static', filename='images/return.png') }}" class="img-fluid" alt="Record Return Icon" style="max-width: 50px;">
             <h5 class="card-title mt-2">Record Return</h5>
             <p class="card-text">Record a product return from a supermarket.</p>
-            <a href="{{ url_for('main.create_return') }}" class="btn btn-primary">Record Return</a>
+            <a href="{{ url_for('return.create') }}" class="btn btn-primary">Record Return</a>
           </div>
         </div>
       </div>
@@ -33,7 +33,7 @@
             <img src="{{ url_for('static', filename='images/supermarket.png') }}" class="img-fluid" alt="Manage Supermarkets Icon" style="max-width: 50px;">
             <h5 class="card-title mt-2">Manage Supermarkets</h5>
             <p class="card-text">Add, edit, or delete supermarkets.</p>
-            <a href="{{ url_for('main.manage_supermarkets') }}" class="btn btn-primary">Manage Supermarkets</a>
+            <a href="{{ url_for('supermarket.manage') }}" class="btn btn-primary">Manage Supermarkets</a>
           </div>
         </div>
       </div>
@@ -43,7 +43,7 @@
             <img src="{{ url_for('static', filename='images/products.png') }}" class="img-fluid" alt="Manage Products Icon" style="max-width: 50px;">
             <h5 class="card-title mt-2">Manage Products</h5>
             <p class="card-text">Add, edit, or delete products.</p>
-            <a href="{{ url_for('main.manage_products') }}" class="btn btn-primary">Manage Products</a>
+            <a href="{{ url_for('product.manage_products') }}" class="btn btn-primary">Manage Products</a>
           </div>
         </div>
       </div>

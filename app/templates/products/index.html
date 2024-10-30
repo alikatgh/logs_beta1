@@ -5,7 +5,7 @@
 <div class="container">
   <form
     method="POST"
-    action="{{ url_for('main.edit_product', id=product.id) }}"
+    action="{{ url_for('product.edit_product', id=product.id) }}"
   >
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <!-- Include the CSRF token -->

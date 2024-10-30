@@ -4,7 +4,7 @@
 </header>
 <div class="container">
   <div class="text-right mb-3">
-    <form action="{{ url_for('main.report') }}" method="POST">
+    <form action="{{ url_for('report.generate_report') }}" method="POST">
       <button type="submit" class="btn btn-primary">Export to Excel</button>
     </form>
   </div>
