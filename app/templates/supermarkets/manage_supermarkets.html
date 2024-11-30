@@ -1,0 +1,101 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-4">
+  <header class="page-title">
+    <h1>Manage Supermarkets and Subchains</h1>
+    <p class="text-muted">
+      Note: Supermarkets with existing deliveries cannot be deleted.
+    </p>
+  </header>
+
+  <div class="row">
+    <div class="col-md-6">
+      <h2>Supermarkets</h2>
+      <button
+        class="btn btn-primary mb-3"
+        data-toggle="modal"
+        data-target="#addSupermarketModal"
+      >
+        Add Supermarket
+      </button>
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for supermarket in supermarkets %}
+          <tr>
+            <td>{{ supermarket.name }}</td>
+            <td>{{ supermarket.address }}</td>
+            <td>
+              <button
+                class="btn btn-warning btn-sm"
+                data-toggle="modal"
+                data-target="#editSupermarketModal{{ supermarket.id }}"
+              >
+                Edit
+              </button>
+              <button
+                class="btn btn-danger btn-sm"
+                data-toggle="modal"
+                data-target="#deleteSupermarketModal{{ supermarket.id }}"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-md-6">
+      <h2>Subchains</h2>
+      <button
+        class="btn btn-primary mb-3"
+        data-toggle="modal"
+        data-target="#addSubchainModal"
+      >
+        Add Subchain
+      </button>
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Supermarket</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for subchain in subchains %}
+          <tr>
+            <td>{{ subchain.name }}</td>
+            <td>{{ subchain.supermarket.name }}</td>
+            <td>
+              <button
+                class="btn btn-warning btn-sm"
+                data-toggle="modal"
+                data-target="#editSubchainModal{{ subchain.id }}"
+              >
+                Edit
+              </button>
+              <button
+                class="btn btn-danger btn-sm"
+                data-toggle="modal"
+                data-target="#deleteSubchainModal{{ subchain.id }}"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

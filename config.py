@@ -13,18 +13,18 @@ class BaseConfig:
     """Base configuration with common settings"""
 
     # Environment settings
-    ENV = 'production'  # Default to production for safety
-    FORCE_HTTPS = True  # Default to True for safety
+    ENV = 'development'  # Default to production for safety
+    FORCE_HTTPS = False  # Default to True for safety
 
     # Security settings
     SECRET_KEY = os.environ.get("SECRET_KEY") or "generate-a-secure-key-in-production"
     WTF_CSRF_ENABLED = True
     WTF_CSRF_TIME_LIMIT = 3600  # 1 hour
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
-    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = False
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
-    REMEMBER_COOKIE_SECURE = True
+    REMEMBER_COOKIE_SECURE = False
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_DURATION = timedelta(days=7)
 

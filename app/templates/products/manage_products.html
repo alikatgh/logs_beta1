@@ -1,13 +1,11 @@
-<!-- templates/manage_products.html -->
-
 {% extends "base.html" %} {% block content %}
 <header class="page-title">
   <h1>Manage Products</h1>
 </header>
+
 <div class="container">
-  <form method="POST" action="{{ url_for('main.manage_products') }}">
+  <form method="POST" action="{{ url_for('product.manage_products') }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-    <!-- Include the CSRF token directly -->
     <div id="product-fields">
       <div class="form-row">
         <div class="form-group col-md-6">
@@ -38,6 +36,7 @@
     </button>
     <button type="submit" class="btn btn-primary">Save Products</button>
   </form>
+
   <hr />
   <h2>Existing Products</h2>
   <table class="table table-striped">
@@ -57,17 +56,14 @@
           <a
             href="{{ url_for('product.edit_product', id=product.id) }}"
             class="btn btn-info btn-sm"
+            >Edit</a
           >
-            Edit
-          </a>
-          <!-- Updated delete form -->
           <form
             action="{{ url_for('product.delete_product', id=product.id) }}"
             method="POST"
             style="display: inline"
           >
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-            <!-- Include the CSRF token directly -->
             <button
               type="submit"
               class="btn btn-danger btn-sm"
@@ -83,7 +79,6 @@
   </table>
 </div>
 
-<!-- Include jQuery if not already included -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   $(document).ready(function () {

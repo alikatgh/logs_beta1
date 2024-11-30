@@ -1,7 +1,7 @@
 from flask import render_template
 from flask_login import login_required
-from . import main  # Changed from 'app.routes import main'
-from ..utils.decorators import log_action  # Changed from 'app.utils.decorators'
+from . import main  # Import the blueprint from __init__.py instead of creating new one
+from ..utils.decorators import log_action
 
 
 @main.route("/")

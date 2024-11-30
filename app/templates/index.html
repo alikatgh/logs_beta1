@@ -1,52 +1,75 @@
-{% extends 'base.html' %}
+{% extends "base.html" %} {% block content %}
+<div class="container mt-4">
+  <h1>Welcome to Borgotsoi Logistics</h1>
+  <div class="row mt-4">
+    <!-- Deliveries Card -->
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Deliveries</h5>
+          <p class="card-text">Manage your deliveries</p>
+          <a href="{{ url_for('delivery.index') }}" class="btn btn-primary"
+            >View Deliveries</a
+          >
+        </div>
+      </div>
+    </div>
 
-{% block content %}
-  <div class="jumbotron text-center">
-    <img src="{{ url_for('static', filename='images/logo.png') }}" class="img-fluid" alt="Logo" style="max-width: 150px;">
-    <h1 class="display-4">Welcome to Borgotsoi Logistics System</h1>
-    <p class="lead">Manage your deliveries, returns, supermarkets, and products efficiently.</p>
-    <hr class="my-4">
-    <div class="row">
-      <div class="col-md-3">
-        <div class="card">
-          <div class="card-body text-center">
-            <img src="{{ url_for('static', filename='images/cargo-truck.png') }}" class="img-fluid" alt="Create Delivery Icon" style="max-width: 50px;">
-            <h5 class="card-title mt-2">Create Delivery</h5>
-            <p class="card-text">Create a new delivery and assign products to it.</p>
-            <a href="{{ url_for('delivery.create') }}" class="btn btn-primary">Create Delivery</a>
-          </div>
+    <!-- Returns Card -->
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Returns</h5>
+          <p class="card-text">Handle return requests</p>
+          <a href="{{ url_for('return.index') }}" class="btn btn-primary"
+            >View Returns</a
+          >
         </div>
       </div>
-      <div class="col-md-3">
-        <div class="card">
-          <div class="card-body text-center">
-            <img src="{{ url_for('static', filename='images/return.png') }}" class="img-fluid" alt="Record Return Icon" style="max-width: 50px;">
-            <h5 class="card-title mt-2">Record Return</h5>
-            <p class="card-text">Record a product return from a supermarket.</p>
-            <a href="{{ url_for('return.create') }}" class="btn btn-primary">Record Return</a>
-          </div>
+    </div>
+
+    <!-- Products Card -->
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Products</h5>
+          <p class="card-text">Manage your products</p>
+          <a
+            href="{{ url_for('product.manage_products') }}"
+            class="btn btn-primary"
+            >Manage Products</a
+          >
         </div>
       </div>
-      <div class="col-md-3">
-        <div class="card">
-          <div class="card-body text-center">
-            <img src="{{ url_for('static', filename='images/supermarket.png') }}" class="img-fluid" alt="Manage Supermarkets Icon" style="max-width: 50px;">
-            <h5 class="card-title mt-2">Manage Supermarkets</h5>
-            <p class="card-text">Add, edit, or delete supermarkets.</p>
-            <a href="{{ url_for('supermarket.manage') }}" class="btn btn-primary">Manage Supermarkets</a>
-          </div>
+    </div>
+
+    <!-- Supermarkets Card -->
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Supermarkets</h5>
+          <p class="card-text">Manage supermarket information</p>
+          <a href="{{ url_for('supermarket.index') }}" class="btn btn-primary"
+            >View Supermarkets</a
+          >
         </div>
       </div>
-      <div class="col-md-3">
-        <div class="card">
-          <div class="card-body text-center">
-            <img src="{{ url_for('static', filename='images/products.png') }}" class="img-fluid" alt="Manage Products Icon" style="max-width: 50px;">
-            <h5 class="card-title mt-2">Manage Products</h5>
-            <p class="card-text">Add, edit, or delete products.</p>
-            <a href="{{ url_for('product.manage_products') }}" class="btn btn-primary">Manage Products</a>
-          </div>
+    </div>
+
+    <!-- Reports Card -->
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Reports</h5>
+          <p class="card-text">View and generate reports</p>
+          <a
+            href="{{ url_for('report.generate_report') }}"
+            class="btn btn-primary"
+            >View Reports</a
+          >
         </div>
       </div>
     </div>
   </div>
+</div>
 {% endblock %}
