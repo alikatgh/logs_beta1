@@ -1,7 +1,8 @@
 from app import create_app
 from werkzeug.serving import run_simple
+from config import Config
 
-application = create_app('development')
+application = create_app(Config)
 
 if __name__ == "__main__":
     import os
@@ -20,7 +21,7 @@ if __name__ == "__main__":
             use_debugger=True,
             threaded=True
         )
-    except KeyError as e:
+    except KeyError:
         # If WERKZEUG_SERVER_FD error occurs, try alternative method
         application.run(
             host='localhost',

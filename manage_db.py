@@ -1,53 +1,49 @@
-from app import create_app, db
-from app.models import User, Supermarket, Subchain, Product, Delivery, DeliveryItem
+from app import app, db
+from app.models import User, Supermarket, Subchain, Product
 
-app = create_app()
-
-
-def reset_db():
+def init_db():
     with app.app_context():
-        db.drop_all()
+        # Create all tables
         db.create_all()
-        print("Database has been reset.")
+        
+        # Check if admin user exists
+        admin = User.query.filter_by(username='admin').first()
+        if not admin:
+            # Create admin user
+            admin = User(username='admin', email='admin@example.com')
+            admin.set_password('admin')  # Change this password in production!
+            db.session.add(admin)
+            
+            # Create sample supermarket
+            supermarket = Supermarket(
+                name='Sample Supermarket',
+                address='123 Main St',
+                contact_person='John Doe',
+                phone='555-0123',
+                email='contact@sample.com'
+            )
+            db.session.add(supermarket)
+            
+            # Create sample subchain
+            subchain = Subchain(
+                name='Downtown Branch',
+                supermarket=supermarket
+            )
+            db.session.add(subchain)
+            
+            # Create sample product
+            product = Product(
+                name='Sample Product',
+                description='A sample product description',
+                price=9.99,
+                sku='SAMPLE001'
+            )
+            db.session.add(product)
+            
+            db.session.commit()
+            print("Database initialized with sample data")
+        else:
+            print("Database already contains data")
 
-
-def create_tables():
-    with app.app_context():
-        db.create_all()
-        print("Tables have been created.")
-
-
-def list_tables():
-    with app.app_context():
-        inspector = db.inspect(db.engine)
-        tables = inspector.get_table_names()
-        print("Tables in the database:")
-        for table in tables:
-            print(f"- {table}")
-            columns = inspector.get_columns(table)
-            for column in columns:
-                print(f"  - {column['name']}: {column['type']}")
-
-
-def print_model_info():
-    with app.app_context():
-        print("Model information:")
-        for model in [User, Supermarket, Subchain, Product, Delivery, DeliveryItem]:
-            print(f"{model.__name__}: {model.__table__.name}")
-            for column in model.__table__.columns:
-                print(f"  - {column.name}: {column.type}")
-
-
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "reset":
-            reset_db()
-        elif sys.argv[1] == "create":
-            create_tables()
-        elif sys.argv[1] == "list":
-            list_tables()
-        elif sys.argv[1] == "info":
-            print_model_info()
-    else:
-        print("Usage: python manage_db.py [reset|create|list|info]")
+if __name__ == '__main__':
+    init_db()

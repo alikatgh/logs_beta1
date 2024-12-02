@@ -1,11 +1,12 @@
-import os
-from app import create_app, db
-from flask_migrate import Migrate
-
-# Get environment or default to development
-config_name = os.environ.get('FLASK_CONFIG', 'default')
-app = create_app(config_name)
-migrate = Migrate(app, db)
+from app import app
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    try:
+        app.run(debug=True)
+    except RuntimeError:  # Specifically catch Werkzeug runtime errors
+        import os
+        # Force cleanup of any existing server
+        if 'WERKZEUG_SERVER_FD' in os.environ:
+            del os.environ['WERKZEUG_SERVER_FD']
+        # Try running again
+        app.run(debug=True)

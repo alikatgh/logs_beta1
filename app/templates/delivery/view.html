@@ -1,0 +1,63 @@
+{% extends "base.html" %} {% block title %}Delivery Details{% endblock %} {%
+block content %}
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <h2>Delivery Details</h2>
+    </div>
+    <div class="card-body">
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <h5>Delivery Information</h5>
+          <p>
+            <strong>Date:</strong> {{
+            delivery.delivery_date.strftime('%Y-%m-%d') }}
+          </p>
+          <p><strong>Supermarket:</strong> {{ delivery.supermarket.name }}</p>
+          <p>
+            <strong>Subchain:</strong> {{ delivery.subchain.name if
+            delivery.subchain else 'N/A' }}
+          </p>
+        </div>
+      </div>
+
+      <h5>Delivered Items</h5>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in delivery.items %}
+            <tr>
+              <td>{{ item.product.name }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>${{ "%.2f"|format(item.price) }}</td>
+              <td>${{ "%.2f"|format(item.total_price) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-end"><strong>Total:</strong></td>
+              <td>
+                <strong>${{ "%.2f"|format(delivery.total_value) }}</strong>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+    <div class="card-footer">
+      <a href="{{ url_for('delivery.index') }}" class="btn btn-secondary"
+        >Back to List</a
+      >
+    </div>
+  </div>
+</div>
+{% endblock %}

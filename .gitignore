@@ -1,6 +1,7 @@
 # Ignore common virtual environment directories
 venv/
 env/
+.venv/
 logs_two/Lib/
 logs_two/bin/
 logs_two/Include/
