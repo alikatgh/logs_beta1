@@ -2,17 +2,20 @@
 <div class="container mt-4">
   <h1>Welcome to Borgotsoi Logistics</h1>
   <div class="row mt-4">
-    <!-- Temporarily disable links until routes are implemented -->
+    <!-- Deliveries Card -->
     <div class="col-md-4">
       <div class="card mb-4">
         <div class="card-body">
           <h5 class="card-title">Deliveries</h5>
           <p class="card-text">Manage your deliveries</p>
-          <button class="btn btn-primary" disabled>View Deliveries</button>
+          <a href="{{ url_for('delivery.index') }}" class="btn btn-primary"
+            >View Deliveries</a
+          >
         </div>
       </div>
     </div>
 
+    <!-- Returns Card -->
     <div class="col-md-4">
       <div class="card mb-4">
         <div class="card-body">
@@ -23,6 +26,7 @@
       </div>
     </div>
 
+    <!-- Products Card -->
     <div class="col-md-4">
       <div class="card mb-4">
         <div class="card-body">
@@ -33,6 +37,7 @@
       </div>
     </div>
 
+    <!-- Supermarkets Card -->
     <div class="col-md-4">
       <div class="card mb-4">
         <div class="card-body">
@@ -43,6 +48,7 @@
       </div>
     </div>
 
+    <!-- Reports Card -->
     <div class="col-md-4">
       <div class="card mb-4">
         <div class="card-body">

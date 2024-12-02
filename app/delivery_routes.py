@@ -1,13 +1,12 @@
-"""Delivery routes for the application."""
+"""Delivery management routes."""
 from flask import Blueprint, render_template, redirect, url_for, flash, jsonify
 from flask_login import login_required
 from app.extensions import db
 from app.models import Delivery, DeliveryItem, Product, Supermarket, Subchain
 from app.forms import DeliveryForm
 
-
 # Create the blueprint
-delivery_bp = Blueprint('delivery', __name__)
+delivery_bp = Blueprint('delivery', __name__, url_prefix='/delivery')
 
 
 @delivery_bp.route('/')
