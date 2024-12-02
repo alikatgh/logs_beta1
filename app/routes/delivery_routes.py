@@ -27,9 +27,7 @@ def create():
     form.supermarket_id.choices = [
         (s.id, s.name) for s in Supermarket.query.order_by('name').all()
     ]
-    form.subchain.choices = [
-        (0, 'Select Subchain')  # Default empty choice
-    ] + [
+    form.subchain.choices = [(0, 'Select Subchain')] + [
         (s.id, s.name) 
         for s in Subchain.query.filter_by(
             supermarket_id=form.supermarket_id.data
@@ -42,31 +40,49 @@ def create():
             (p.id, f"{p.name} (${p.price})") 
             for p in Product.query.order_by('name').all()
         ]
-        # Pre-fill price if product is selected
-        if product_form.product_id.data:
-            product = Product.query.get(product_form.product_id.data)
-            if product and not product_form.price.data:
-                product_form.price.data = product.price
     
     if form.validate_on_submit():
-        delivery = Delivery(
-            delivery_date=form.delivery_date.data,
-            supermarket_id=form.supermarket_id.data,
-            subchain_id=form.subchain.data if form.subchain.data else None
-        )
-        
-        for product_form in form.products:
-            item = DeliveryItem(
-                product_id=product_form.product_id.data,
-                quantity=product_form.quantity.data,
-                price=product_form.price.data
+        try:
+            # Print form data for debugging
+            print("Form data:", {
+                'delivery_date': form.delivery_date.data,
+                'supermarket_id': form.supermarket_id.data,
+                'subchain': form.subchain.data,
+                'products': [(p.product_id.data, p.quantity.data, p.price.data) for p in form.products]
+            })
+            
+            delivery = Delivery(
+                delivery_date=form.delivery_date.data,
+                supermarket_id=form.supermarket_id.data,
+                subchain_id=form.subchain.data if form.subchain.data and form.subchain.data != 0 else None
             )
-            delivery.items.append(item)
-        
-        db.session.add(delivery)
-        db.session.commit()
-        flash('Delivery created successfully', 'success')
-        return redirect(url_for('delivery.index'))
+            
+            for product_form in form.products:
+                if product_form.product_id.data:  # Only add if product is selected
+                    item = DeliveryItem(
+                        product_id=product_form.product_id.data,
+                        quantity=product_form.quantity.data,
+                        price=product_form.price.data
+                    )
+                    delivery.items.append(item)
+            
+            if not delivery.items:
+                flash('Please add at least one product', 'error')
+                return render_template('delivery/create.html', form=form)
+            
+            db.session.add(delivery)
+            db.session.commit()
+            flash('Delivery created successfully', 'success')
+            return redirect(url_for('delivery.index'))
+            
+        except Exception as e:
+            db.session.rollback()
+            print("Error creating delivery:", str(e))  # Debug print
+            flash(f'Error creating delivery: {str(e)}', 'error')
+            return render_template('delivery/create.html', form=form)
+    else:
+        # Print validation errors for debugging
+        print("Form validation errors:", form.errors)
     
     return render_template('delivery/create.html', form=form)
 

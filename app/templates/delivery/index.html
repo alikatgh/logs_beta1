@@ -1,48 +1,51 @@
-{% extends "base.html" %} {% block title %}Deliveries{% endblock %} {% block
-content %}
-<div class="container">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Deliveries</h1>
-    <a href="{{ url_for('delivery.create') }}" class="btn btn-primary"
-      >Create New Delivery</a
-    >
-  </div>
-
-  <div class="table-responsive">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Supermarket</th>
-          <th>Subchain</th>
-          <th>Total Items</th>
-          <th>Total Value</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for delivery in deliveries %}
-        <tr>
-          <td>{{ delivery.delivery_date.strftime('%Y-%m-%d') }}</td>
-          <td>{{ delivery.supermarket.name }}</td>
-          <td>{{ delivery.subchain.name if delivery.subchain else '-' }}</td>
-          <td>{{ delivery.items|length }}</td>
-          <td>${{ "%.2f"|format(delivery.total_value) }}</td>
-          <td>
-            <a
-              href="{{ url_for('delivery.view', id=delivery.id) }}"
-              class="btn btn-sm btn-info"
-              >View</a
-            >
-          </td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="6" class="text-center">No deliveries found</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+{% extends "base.html" %} {% block content %}
+<div class="container mt-4">
+  <h1>Deliveries</h1>
+  <div class="row">
+    <div class="col-md-12">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Supermarket</th>
+            <th>Subchain</th>
+            <th>Products</th>
+            <th>Total Value</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for delivery in deliveries %}
+          <tr>
+            <td>{{ delivery.delivery_date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ delivery.supermarket.name }}</td>
+            <td>{{ delivery.subchain.name if delivery.subchain else '-' }}</td>
+            <td>
+              <ul class="list-unstyled">
+                {% for item in delivery.items %}
+                <li>
+                  {{ item.product.name }} ({{ item.quantity }} x ${{ item.price
+                  }})
+                </li>
+                {% endfor %}
+              </ul>
+            </td>
+            <td>${{ "%.2f"|format(delivery.total_value) }}</td>
+            <td>
+              <a
+                href="{{ url_for('delivery.view', delivery_id=delivery.id) }}"
+                class="btn btn-sm btn-info"
+                >View</a
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <a href="{{ url_for('delivery.create') }}" class="btn btn-success"
+        >Create Delivery</a
+      >
+    </div>
   </div>
 </div>
 {% endblock %}
