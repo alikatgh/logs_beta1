@@ -23,10 +23,30 @@ def create():
     """Create a new delivery."""
     form = DeliveryForm()
     
-    # Populate select fields
+    # Populate select fields with actual data
     form.supermarket_id.choices = [
-        (s.id, s.name) for s in Supermarket.query.order_by('name')
+        (s.id, s.name) for s in Supermarket.query.order_by('name').all()
     ]
+    form.subchain.choices = [
+        (0, 'Select Subchain')  # Default empty choice
+    ] + [
+        (s.id, s.name) 
+        for s in Subchain.query.filter_by(
+            supermarket_id=form.supermarket_id.data
+        ).all()
+    ] if form.supermarket_id.data else [(0, 'Select Subchain')]
+    
+    # Populate product choices for each product form
+    for product_form in form.products:
+        product_form.product_id.choices = [
+            (p.id, f"{p.name} (${p.price})") 
+            for p in Product.query.order_by('name').all()
+        ]
+        # Pre-fill price if product is selected
+        if product_form.product_id.data:
+            product = Product.query.get(product_form.product_id.data)
+            if product and not product_form.price.data:
+                product_form.price.data = product.price
     
     if form.validate_on_submit():
         delivery = Delivery(

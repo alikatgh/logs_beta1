@@ -95,4 +95,31 @@ def get_subchains(supermarket_id):
     """Get subchains for a supermarket (AJAX endpoint)."""
     subchains = Subchain.query.filter_by(supermarket_id=supermarket_id).all()
     return jsonify([{'id': s.id, 'name': s.name} for s in subchains])
+
+
+@supermarket_bp.route('/<int:id>/subchains/<int:subchain_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_subchain(id, subchain_id):
+    """Edit a subchain."""
+    supermarket = Supermarket.query.get_or_404(id)
+    subchain = Subchain.query.get_or_404(subchain_id)
+    
+    if subchain.supermarket_id != id:
+        flash('Invalid subchain for this supermarket', 'error')
+        return redirect(url_for('supermarket.subchains', id=id))
+    
+    form = SubchainForm(obj=subchain)
+    
+    if form.validate_on_submit():
+        subchain.name = form.name.data
+        db.session.commit()
+        flash('Subchain updated successfully', 'success')
+        return redirect(url_for('supermarket.subchains', id=id))
+    
+    return render_template(
+        'supermarket/edit_subchain.html',
+        form=form,
+        supermarket=supermarket,
+        subchain=subchain
+    )
   
