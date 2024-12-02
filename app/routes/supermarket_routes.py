@@ -1,84 +1,98 @@
-from flask import render_template, redirect, url_for, request, flash
-from app import db
+"""Supermarket management routes."""
+from flask import Blueprint, render_template, redirect, url_for, flash, jsonify
+from flask_login import login_required
+from app.extensions import db
 from app.models import Supermarket, Subchain
-from . import supermarket  # Import the supermarket blueprint
+from app.forms import SupermarketForm, SubchainForm
 
-# Index route to view a list of all supermarkets - renders `supermarkets/index.html`
-@supermarket.route('/supermarkets/index', methods=['GET'])
+# Create the blueprint
+supermarket_bp = Blueprint('supermarket', __name__, url_prefix='/supermarket')
+
+
+@supermarket_bp.route('/')
+@login_required
 def index():
-    supermarkets = Supermarket.query.all()
-    return render_template('supermarkets/index.html', supermarkets=supermarkets)
+    """List all supermarkets."""
+    supermarkets = Supermarket.query.order_by(Supermarket.name).all()
+    return render_template('supermarket/index.html', supermarkets=supermarkets)
 
-# View all supermarkets and subchains - renders `manage_supermarkets.html`
-@supermarket.route('/supermarkets', methods=['GET', 'POST'])
-def manage_supermarkets():
-    supermarkets = Supermarket.query.all()
-    subchains = Subchain.query.all()
-    return render_template('supermarkets/manage_supermarkets.html', supermarkets=supermarkets, subchains=subchains)
 
-# Add new supermarket
-@supermarket.route('/supermarkets/add', methods=['POST'])
-def add_supermarket():
-    name = request.form.get('name')
-    address = request.form.get('address')
-    if name and address:
-        supermarket = Supermarket(name=name, address=address)
+@supermarket_bp.route('/create', methods=['GET', 'POST'])
+@login_required
+def create():
+    """Create a new supermarket."""
+    form = SupermarketForm()
+    if form.validate_on_submit():
+        supermarket = Supermarket(
+            name=form.name.data,
+            address=form.address.data,
+            contact_person=form.contact_person.data,
+            phone=form.phone.data,
+            email=form.email.data
+        )
         db.session.add(supermarket)
         db.session.commit()
-        flash('Supermarket added successfully!', 'success')
-    return redirect(url_for('supermarket.manage_supermarkets'))
+        flash('Supermarket created successfully', 'success')
+        return redirect(url_for('supermarket.index'))
+    return render_template('supermarket/create.html', form=form)
 
-# Edit supermarket
-@supermarket.route('/supermarkets/edit/<int:id>', methods=['GET', 'POST'])
-def edit_supermarket(id):
+
+@supermarket_bp.route('/<int:id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit(id):
+    """Edit a supermarket."""
     supermarket = Supermarket.query.get_or_404(id)
-    if request.method == 'POST':
-        supermarket.name = request.form.get('name')
-        supermarket.address = request.form.get('address')
+    form = SupermarketForm(obj=supermarket)
+    
+    if form.validate_on_submit():
+        supermarket.name = form.name.data
+        supermarket.address = form.address.data
+        supermarket.contact_person = form.contact_person.data
+        supermarket.phone = form.phone.data
+        supermarket.email = form.email.data
         db.session.commit()
-        flash('Supermarket updated successfully!', 'success')
-        return redirect(url_for('supermarket.manage_supermarkets'))
-    return render_template('supermarkets/edit_supermarket.html', supermarket=supermarket)
+        flash('Supermarket updated successfully', 'success')
+        return redirect(url_for('supermarket.index'))
+    
+    return render_template('supermarket/edit.html', form=form, supermarket=supermarket)
 
-# Delete supermarket
-@supermarket.route('/supermarkets/delete/<int:id>', methods=['POST'])
-def delete_supermarket(id):
+
+@supermarket_bp.route('/<int:id>/subchains')
+@login_required
+def subchains(id):
+    """List subchains for a supermarket."""
     supermarket = Supermarket.query.get_or_404(id)
-    if supermarket.deliveries.count() == 0:
-        db.session.delete(supermarket)
-        db.session.commit()
-        flash('Supermarket deleted successfully!', 'success')
-    else:
-        flash('Cannot delete supermarket with existing deliveries.', 'danger')
-    return redirect(url_for('supermarket.manage_supermarkets'))
+    return render_template('supermarket/subchains.html', supermarket=supermarket)
 
-# Add subchain
-@supermarket.route('/subchains/add', methods=['POST'])
-def add_subchain():
-    name = request.form.get('subchain_name')
-    supermarket_id = request.form.get('supermarket_id')
-    if name and supermarket_id:
-        subchain = Subchain(name=name, supermarket_id=supermarket_id)
+
+@supermarket_bp.route('/<int:id>/subchains/create', methods=['GET', 'POST'])
+@login_required
+def create_subchain(id):
+    """Create a new subchain for a supermarket."""
+    supermarket = Supermarket.query.get_or_404(id)
+    form = SubchainForm()
+    
+    if form.validate_on_submit():
+        subchain = Subchain(
+            name=form.name.data,
+            supermarket_id=id
+        )
         db.session.add(subchain)
         db.session.commit()
-        flash('Subchain added successfully!', 'success')
-    return redirect(url_for('supermarket.manage_supermarkets'))
+        flash('Subchain created successfully', 'success')
+        return redirect(url_for('supermarket.subchains', id=id))
+    
+    return render_template(
+        'supermarket/create_subchain.html',
+        form=form,
+        supermarket=supermarket
+    )
 
-# Edit subchain
-@supermarket.route('/subchains/edit/<int:id>', methods=['POST'])
-def edit_subchain(id):
-    subchain = Subchain.query.get_or_404(id)
-    subchain.name = request.form.get('name')
-    subchain.supermarket_id = request.form.get('supermarket_id')
-    db.session.commit()
-    flash('Subchain updated successfully!', 'success')
-    return redirect(url_for('supermarket.manage_supermarkets'))
 
-# Delete subchain
-@supermarket.route('/subchains/delete/<int:id>', methods=['POST'])
-def delete_subchain(id):
-    subchain = Subchain.query.get_or_404(id)
-    db.session.delete(subchain)
-    db.session.commit()
-    flash('Subchain deleted successfully!', 'success')
-    return redirect(url_for('supermarket.manage_supermarkets'))
+@supermarket_bp.route('/get_subchains/<int:supermarket_id>')
+@login_required
+def get_subchains(supermarket_id):
+    """Get subchains for a supermarket (AJAX endpoint)."""
+    subchains = Subchain.query.filter_by(supermarket_id=supermarket_id).all()
+    return jsonify([{'id': s.id, 'name': s.name} for s in subchains])
+  

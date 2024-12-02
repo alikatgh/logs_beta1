@@ -1,149 +1,79 @@
-from flask import render_template, redirect, url_for, flash, current_app
-from flask_login import login_required, current_user
-from sqlalchemy.orm import joinedload
+"""Delivery management routes."""
+from flask import Blueprint, render_template, redirect, url_for, flash, jsonify
+from flask_login import login_required
+from app.extensions import db
+from app.models import Delivery, DeliveryItem, Product, Supermarket, Subchain
+from app.forms import DeliveryForm
 
-from app.routes import delivery
-from app.models import Delivery, DeliveryItem, Supermarket, Product, db
-from app.forms import DeliveryForm, EmptyForm
-from app.utils.decorators import log_action
+# Create the blueprint
+delivery_bp = Blueprint('delivery', __name__, url_prefix='/delivery')
 
 
-@delivery.route("/", methods=["GET"])
+@delivery_bp.route('/')
 @login_required
-@log_action("viewed_deliveries")
 def index():
-    """
-    List all deliveries with optimized queries
-
-    Returns:
-        rendered template with deliveries list
-    """
-    deliveries = (
-        Delivery.query.options(
-            joinedload(Delivery.supermarket),
-            joinedload(Delivery.subchain),
-            joinedload(Delivery.items).joinedload(DeliveryItem.product),
-        )
-        .order_by(Delivery.delivery_date.desc())
-        .all()
-    )
-    return render_template(
-        "deliveries/index.html", deliveries=deliveries, form=EmptyForm()
-    )
+    """List all deliveries."""
+    deliveries = Delivery.query.order_by(Delivery.delivery_date.desc()).all()
+    return render_template('delivery/index.html', deliveries=deliveries)
 
 
-@delivery.route("/create", methods=["GET", "POST"])
+@delivery_bp.route('/create', methods=['GET', 'POST'])
 @login_required
-@log_action("create_delivery")
 def create():
-    """
-    Create a new delivery
-
-    Returns:
-        On GET: rendered create form
-        On POST success: redirect to index
-        On POST error: rendered form with errors
-    """
+    """Create a new delivery."""
     form = DeliveryForm()
-
-    # Fetch data with optimized queries
-    supermarkets = Supermarket.query.filter_by(is_active=True).all()
-    products = Product.query.filter_by(is_active=True).all()
-
-    # Populate form choices
-    form.supermarket_id.choices = [(s.id, s.name) for s in supermarkets]
-    for product_form in form.products:
-        product_form.product_id.choices = [(p.id, p.name) for p in products]
-
+    
+    # Populate select fields
+    form.supermarket_id.choices = [
+        (s.id, s.name) for s in Supermarket.query.order_by('name')
+    ]
+    
     if form.validate_on_submit():
-        try:
-            # Create new delivery
-            new_delivery = Delivery(
-                supermarket_id=form.supermarket_id.data,
-                subchain_id=form.subchain.data,
-                delivery_date=form.delivery_date.data,
-                created_by_id=current_user.id,
+        delivery = Delivery(
+            delivery_date=form.delivery_date.data,
+            supermarket_id=form.supermarket_id.data,
+            subchain_id=form.subchain.data if form.subchain.data else None
+        )
+        
+        for product_form in form.products:
+            item = DeliveryItem(
+                product_id=product_form.product_id.data,
+                quantity=product_form.quantity.data,
+                price=product_form.price.data
             )
-            db.session.add(new_delivery)
-            db.session.flush()
-
-            # Add delivery items
-            for product_form in form.products:
-                new_item = DeliveryItem(
-                    delivery_id=new_delivery.id,
-                    product_id=product_form.product_id.data,
-                    quantity=product_form.quantity.data,
-                    price=product_form.price.data,
-                )
-                db.session.add(new_item)
-
-            db.session.commit()
-            flash("Delivery created successfully", "success")
-            return redirect(url_for("delivery.index"))
-
-        except Exception as e:
-            db.session.rollback()
-            flash(f"Error creating delivery: {str(e)}", "danger")
-            current_app.logger.error(
-                f"Error creating delivery: {str(e)}", exc_info=True
-            )
-
-    return render_template(
-        "deliveries/create.html",
-        form=form,
-        supermarkets=supermarkets,
-        products=products,
-        products_serialized=[p.to_dict() for p in products],
-    )
+            delivery.items.append(item)
+        
+        db.session.add(delivery)
+        db.session.commit()
+        flash('Delivery created successfully', 'success')
+        return redirect(url_for('delivery.index'))
+    
+    return render_template('delivery/create.html', form=form)
 
 
-@delivery.route("/<int:delivery_id>", methods=["GET"])
+@delivery_bp.route('/<int:delivery_id>')
 @login_required
-@log_action("view_delivery")
 def view(delivery_id):
-    """
-    View delivery details
-
-    Args:
-        delivery_id: ID of the delivery to view
-
-    Returns:
-        rendered template with delivery details
-    """
-    delivery = Delivery.query.options(
-        joinedload(Delivery.supermarket),
-        joinedload(Delivery.subchain),
-        joinedload(Delivery.items).joinedload(DeliveryItem.product),
-    ).get_or_404(delivery_id)
-    return render_template("deliveries/view.html", delivery=delivery)
+    """View a specific delivery."""
+    delivery = Delivery.query.get_or_404(delivery_id)
+    return render_template('delivery/view.html', delivery=delivery)
 
 
-@delivery.route("/<int:delivery_id>/delete", methods=["POST"])
+@delivery_bp.route('/get_subchains/<int:supermarket_id>')
 @login_required
-@log_action("delete_delivery")
-def delete(delivery_id):
-    """
-    Delete a delivery
+def get_subchains(supermarket_id):
+    """Get subchains for a supermarket (AJAX endpoint)."""
+    subchains = Subchain.query.filter_by(supermarket_id=supermarket_id).all()
+    return jsonify([{'id': s.id, 'name': s.name} for s in subchains])
 
-    Args:
-        delivery_id: ID of the delivery to delete
 
-    Returns:
-        redirect to index page
-    """
-    form = EmptyForm()
-    if form.validate_on_submit():
-        try:
-            delivery = Delivery.query.get_or_404(delivery_id)
-            db.session.delete(delivery)
-            db.session.commit()
-            flash("Delivery deleted successfully", "success")
-
-        except Exception as e:
-            db.session.rollback()
-            flash(f"Error deleting delivery: {str(e)}", "danger")
-            current_app.logger.error(
-                f"Error deleting delivery: {str(e)}", exc_info=True
-            )
-
-    return redirect(url_for("delivery.index"))
+@delivery_bp.route('/get_products')
+@login_required
+def get_products():
+    """Get all products (AJAX endpoint)."""
+    products = Product.query.order_by('name').all()
+    return jsonify([{
+        'id': p.id,
+        'name': p.name,
+        'price': float(p.price) if p.price else 0
+    } for p in products]) 

@@ -1,12 +1,12 @@
-from flask import render_template
+"""Main routes for the application."""
+from flask import Blueprint, render_template
 from flask_login import login_required
-from . import main  # Import the blueprint from __init__.py instead of creating new one
-from ..utils.decorators import log_action
+
+main_bp = Blueprint('main', __name__)
 
 
-@main.route("/")
+@main_bp.route('/')
 @login_required
-@log_action("viewed_index")
 def index():
-    """Main index page"""
-    return render_template("index.html")
+    """Render the home page."""
+    return render_template('index.html')

@@ -1,0 +1,40 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-4">
+  <h1>Returns</h1>
+  <div class="row">
+    <div class="col-md-12">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Return Date</th>
+            <th>Delivery Date</th>
+            <th>Supermarket</th>
+            <th>Total Value</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for return in returns %}
+          <tr>
+            <td>{{ return.return_date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ return.delivery_date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ return.supermarket.name }}</td>
+            <td>{{ return.total_value }}</td>
+            <td>
+              <a
+                href="{{ url_for('return.view', return_id=return.id) }}"
+                class="btn btn-sm btn-info"
+                >View</a
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <a href="{{ url_for('return.create') }}" class="btn btn-success"
+        >Record Return</a
+      >
+    </div>
+  </div>
+</div>
+{% endblock %}

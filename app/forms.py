@@ -109,6 +109,32 @@ class EmptyForm(FlaskForm):
 
 
 class ProductForm(FlaskForm):
+    """Form for creating and editing products."""
+    name = StringField(
+        "Name",
+        validators=[DataRequired(), Length(max=100)]
+    )
+    description = StringField(
+        "Description",
+        validators=[Optional(), Length(max=500)]
+    )
+    price = DecimalField(
+        "Price",
+        places=2,
+        validators=[
+            DataRequired(),
+            NumberRange(min=0.01, message="Price must be greater than 0"),
+        ],
+    )
+    sku = StringField(
+        "SKU",
+        validators=[Optional(), Length(max=50)]
+    )
+    submit = SubmitField("Save Product")
+
+
+class DeliveryProductForm(FlaskForm):
+    """Form for products in a delivery."""
     product_id = SelectField("Product", coerce=int, validators=[DataRequired()])
     quantity = IntegerField(
         "Quantity",
@@ -148,7 +174,70 @@ class DeliveryForm(FlaskForm):
         validators=[Optional()]
     )
     products = FieldList(
-        FormField(ProductForm),
+        FormField(DeliveryProductForm),
         min_entries=1
     )
     submit = SubmitField("Create Delivery")
+
+
+class ReturnForm(FlaskForm):
+    """Form for creating and editing returns."""
+    supermarket_id = SelectField(
+        "Supermarket", 
+        coerce=int,
+        validators=[DataRequired()]
+    )
+    subchain_id = SelectField(
+        "Subchain", 
+        coerce=int,
+        validators=[Optional()]
+    )
+    delivery_date = DateField(
+        "Delivery Date",
+        validators=[DataRequired()],
+        default=datetime.utcnow
+    )
+    return_date = DateField(
+        "Return Date",
+        validators=[DataRequired()],
+        default=datetime.utcnow
+    )
+    products = FieldList(
+        FormField(DeliveryProductForm),
+        min_entries=1
+    )
+    submit = SubmitField("Create Return")
+
+
+class SupermarketForm(FlaskForm):
+    """Form for creating and editing supermarkets."""
+    name = StringField(
+        "Name", 
+        validators=[DataRequired(), Length(max=100)]
+    )
+    address = StringField(
+        "Address", 
+        validators=[Optional(), Length(max=200)]
+    )
+    contact_person = StringField(
+        "Contact Person", 
+        validators=[Optional(), Length(max=100)]
+    )
+    phone = StringField(
+        "Phone", 
+        validators=[Optional(), Length(max=20)]
+    )
+    email = StringField(
+        "Email", 
+        validators=[Optional(), Email(), Length(max=120)]
+    )
+    submit = SubmitField("Save Supermarket")
+
+
+class SubchainForm(FlaskForm):
+    """Form for creating and editing subchains."""
+    name = StringField(
+        "Name", 
+        validators=[DataRequired(), Length(max=100)]
+    )
+    submit = SubmitField("Save Subchain")

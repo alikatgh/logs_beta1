@@ -1,63 +1,54 @@
-from flask import render_template, redirect, url_for, flash, request
+"""Product management routes."""
+from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required
-
-from app.routes import product
+from app.extensions import db
 from app.models import Product
-from app.database import db
+from app.forms import ProductForm
+
+product_bp = Blueprint('product', __name__, url_prefix='/product')
 
 
-@product.route("/", methods=["GET", "POST"])
+@product_bp.route('/')
 @login_required
 def manage_products():
-    """Handle product management"""
-    if request.method == "POST":
-        try:
-            names = request.form.getlist("name[]")
-            prices = request.form.getlist("price[]")
-
-            for name, price in zip(names, prices):
-                new_product = Product(name=name, price=price)
-                db.session.add(new_product)
-            db.session.commit()
-            flash("Products added successfully", "success")
-        except Exception as e:
-            db.session.rollback()
-            flash(f"Error adding products: {str(e)}", "danger")
-
-    products = Product.query.all()
-    return render_template("manage_products.html", products=products)
+    """List and manage products."""
+    products = Product.query.order_by(Product.name).all()
+    return render_template('products/manage_products.html', products=products)
 
 
-@product.route("/edit/<int:id>", methods=["GET", "POST"])
+@product_bp.route('/create', methods=['GET', 'POST'])
 @login_required
-def edit_product(id):
-    """Handle product editing"""
-    product = Product.query.get_or_404(id)
-    if request.method == "POST":
-        try:
-            product.name = request.form["name"]
-            product.price = request.form["price"]
-            db.session.commit()
-            flash("Product updated successfully", "success")
-            return redirect(url_for("product.manage_products"))
-        except Exception as e:
-            db.session.rollback()
-            flash(f"Error updating product: {str(e)}", "danger")
-
-    return render_template("edit_products.html", product=product)
-
-
-@product.route("/delete/<int:id>", methods=["POST"])
-@login_required
-def delete_product(id):
-    """Handle product deletion"""
-    try:
-        product = Product.query.get_or_404(id)
-        db.session.delete(product)
+def create():
+    """Create a new product."""
+    form = ProductForm()
+    if form.validate_on_submit():
+        product = Product(
+            name=form.name.data,
+            description=form.description.data,
+            price=form.price.data,
+            sku=form.sku.data
+        )
+        db.session.add(product)
         db.session.commit()
-        flash("Product deleted successfully", "success")
-    except Exception as e:
-        db.session.rollback()
-        flash(f"Error deleting product: {str(e)}", "danger")
+        flash('Product created successfully', 'success')
+        return redirect(url_for('product.manage_products'))
+    return render_template('products/create.html', form=form)
 
-    return redirect(url_for("product.manage_products"))
+
+@product_bp.route('/<int:id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit(id):
+    """Edit a product."""
+    product = Product.query.get_or_404(id)
+    form = ProductForm(obj=product)
+    
+    if form.validate_on_submit():
+        product.name = form.name.data
+        product.description = form.description.data
+        product.price = form.price.data
+        product.sku = form.sku.data
+        db.session.commit()
+        flash('Product updated successfully', 'success')
+        return redirect(url_for('product.manage_products'))
+    
+    return render_template('products/edit.html', form=form, product=product)

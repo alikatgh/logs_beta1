@@ -6,12 +6,13 @@ load_dotenv()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+
 class Config:
     """Base configuration."""
-    
+
     # Flask configuration
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-please-change-in-production'
-    
+
     # SQLAlchemy configuration
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'app.db')
@@ -26,7 +27,7 @@ class Config:
 
     # Additional configuration variables can be added here
     DEBUG = os.environ.get('FLASK_DEBUG', '0') == '1'
-    
+
     # Enabled routes
     ENABLED_ROUTES = [
         'delivery.index',

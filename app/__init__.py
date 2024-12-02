@@ -1,7 +1,17 @@
 """Flask application initialization."""
 from flask import Flask
+from flask_migrate import Migrate
 from config import Config
 from app.extensions import db, login_manager, mail
+from app.routes import (
+    auth_bp,
+    main_bp,
+    delivery_bp,
+    return_bp,
+    product_bp,
+    supermarket_bp,
+    report_bp
+)
 
 
 def create_app(config_class=Config):
@@ -13,15 +23,16 @@ def create_app(config_class=Config):
     db.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
+    Migrate(app, db)
 
-    # Register blueprints here
-    from app.auth_routes import auth_bp
-    from app.main_routes import main_bp
-    from app.delivery_routes import delivery_bp
-    
+    # Register blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(delivery_bp)
+    app.register_blueprint(return_bp)
+    app.register_blueprint(product_bp)
+    app.register_blueprint(supermarket_bp)
+    app.register_blueprint(report_bp)
 
     return app
 

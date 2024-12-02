@@ -37,6 +37,7 @@ class Supermarket(db.Model):
     # Relationships
     subchains = db.relationship('Subchain', backref='supermarket', lazy=True)
     deliveries = db.relationship('Delivery', backref='supermarket', lazy=True)
+    returns = db.relationship('Return', backref='supermarket', lazy=True)
 
     def __repr__(self):
         return f'<Supermarket {self.name}>'
@@ -49,6 +50,7 @@ class Subchain(db.Model):
     
     # Relationships
     deliveries = db.relationship('Delivery', backref='subchain', lazy=True)
+    returns = db.relationship('Return', backref='subchain', lazy=True)
 
     def __repr__(self):
         return f'<Subchain {self.name}>'
@@ -63,6 +65,7 @@ class Product(db.Model):
     
     # Relationships
     delivery_items = db.relationship('DeliveryItem', backref='product', lazy=True)
+    return_items = db.relationship('ReturnItem', backref='product', lazy=True)
 
     def __repr__(self):
         return f'<Product {self.name}>'
@@ -104,3 +107,46 @@ class DeliveryItem(db.Model):
 
     def __repr__(self):
         return f'<DeliveryItem {self.product.name} x{self.quantity}>'
+
+
+class Return(db.Model):
+    """Model for return records."""
+    id = db.Column(db.Integer, primary_key=True)
+    return_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+    delivery_date = db.Column(db.Date, nullable=False)
+    supermarket_id = db.Column(db.Integer, db.ForeignKey('supermarket.id'), nullable=False)
+    subchain_id = db.Column(db.Integer, db.ForeignKey('subchain.id'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    items = db.relationship(
+        'ReturnItem',
+        backref='return_record',
+        lazy=True,
+        cascade='all, delete-orphan'
+    )
+
+    @property
+    def total_value(self):
+        """Calculate total value of return."""
+        return sum(item.total_price for item in self.items)
+
+    def __repr__(self):
+        return f'<Return {self.id} from {self.supermarket.name}>'
+
+
+class ReturnItem(db.Model):
+    """Model for items in a return record."""
+    id = db.Column(db.Integer, primary_key=True)
+    return_id = db.Column(db.Integer, db.ForeignKey('return.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Numeric(10, 2), nullable=False)
+
+    @property
+    def total_price(self):
+        """Calculate total price for this item."""
+        return Decimal(str(self.price)) * self.quantity
+
+    def __repr__(self):
+        return f'<ReturnItem {self.product.name} x{self.quantity}>'

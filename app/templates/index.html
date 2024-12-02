@@ -21,7 +21,9 @@
         <div class="card-body">
           <h5 class="card-title">Returns</h5>
           <p class="card-text">Handle return requests</p>
-          <button class="btn btn-primary" disabled>View Returns</button>
+          <a href="{{ url_for('return.index') }}" class="btn btn-primary"
+            >View Returns</a
+          >
         </div>
       </div>
     </div>
@@ -32,7 +34,11 @@
         <div class="card-body">
           <h5 class="card-title">Products</h5>
           <p class="card-text">Manage your products</p>
-          <button class="btn btn-primary" disabled>Manage Products</button>
+          <a
+            href="{{ url_for('product.manage_products') }}"
+            class="btn btn-primary"
+            >Manage Products</a
+          >
         </div>
       </div>
     </div>
@@ -43,7 +49,9 @@
         <div class="card-body">
           <h5 class="card-title">Supermarkets</h5>
           <p class="card-text">Manage supermarket information</p>
-          <button class="btn btn-primary" disabled>View Supermarkets</button>
+          <a href="{{ url_for('supermarket.index') }}" class="btn btn-primary"
+            >View Supermarkets</a
+          >
         </div>
       </div>
     </div>
@@ -54,7 +62,11 @@
         <div class="card-body">
           <h5 class="card-title">Reports</h5>
           <p class="card-text">View and generate reports</p>
-          <button class="btn btn-primary" disabled>View Reports</button>
+          <a
+            href="{{ url_for('report.generate_report') }}"
+            class="btn btn-primary"
+            >View Reports</a
+          >
         </div>
       </div>
     </div>

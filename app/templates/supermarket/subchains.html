@@ -1,28 +1,22 @@
 {% extends "base.html" %} {% block content %}
 <div class="container mt-4">
-  <h1>Manage Products</h1>
+  <h1>{{ supermarket.name }} - Subchains</h1>
   <div class="row">
     <div class="col-md-12">
       <table class="table">
         <thead>
           <tr>
             <th>Name</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>SKU</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {% for product in products %}
+          {% for subchain in supermarket.subchains %}
           <tr>
-            <td>{{ product.name }}</td>
-            <td>{{ product.description }}</td>
-            <td>{{ product.price }}</td>
-            <td>{{ product.sku }}</td>
+            <td>{{ subchain.name }}</td>
             <td>
               <a
-                href="{{ url_for('product.edit', id=product.id) }}"
+                href="{{ url_for('supermarket.edit_subchain', id=supermarket.id, subchain_id=subchain.id) }}"
                 class="btn btn-sm btn-primary"
                 >Edit</a
               >
@@ -31,8 +25,13 @@
           {% endfor %}
         </tbody>
       </table>
-      <a href="{{ url_for('product.create') }}" class="btn btn-success"
-        >Add Product</a
+      <a
+        href="{{ url_for('supermarket.create_subchain', id=supermarket.id) }}"
+        class="btn btn-success"
+        >Add Subchain</a
+      >
+      <a href="{{ url_for('supermarket.index') }}" class="btn btn-secondary"
+        >Back to Supermarkets</a
       >
     </div>
   </div>
