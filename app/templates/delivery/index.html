@@ -1,6 +1,16 @@
 {% extends "base.html" %} {% block content %}
 <div class="container mt-4">
-  <h1>Deliveries</h1>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Deliveries</h1>
+    <div>
+      <a href="{{ url_for('delivery.download') }}" class="btn btn-success me-2">
+        <i class="fas fa-download"></i> Download CSV
+      </a>
+      <a href="{{ url_for('delivery.create') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Create Delivery
+      </a>
+    </div>
+  </div>
   <div class="row">
     <div class="col-md-12">
       <table class="table">
@@ -42,9 +52,6 @@
           {% endfor %}
         </tbody>
       </table>
-      <a href="{{ url_for('delivery.create') }}" class="btn btn-success"
-        >Create Delivery</a
-      >
     </div>
   </div>
 </div>

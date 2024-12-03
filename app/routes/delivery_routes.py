@@ -1,9 +1,11 @@
 """Delivery management routes."""
-from flask import Blueprint, render_template, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, redirect, url_for, flash, jsonify, make_response
 from flask_login import login_required
 from app.extensions import db
 from app.models import Delivery, DeliveryItem, Product, Supermarket, Subchain
 from app.forms import DeliveryForm
+import csv
+from io import StringIO
 
 # Create the blueprint
 delivery_bp = Blueprint('delivery', __name__, url_prefix='/delivery')
@@ -111,4 +113,41 @@ def get_products():
         'id': p.id,
         'name': p.name,
         'price': float(p.price) if p.price else 0
-    } for p in products]) 
+    } for p in products])
+
+
+@delivery_bp.route('/download')
+@login_required
+def download():
+    """Download deliveries as CSV."""
+    # Get data
+    deliveries = Delivery.query.order_by(Delivery.delivery_date.desc()).all()
+    
+    # Create CSV file
+    si = StringIO()
+    writer = csv.writer(si)
+    
+    # Write headers
+    writer.writerow(['Date', 'Supermarket', 'Subchain', 'Products', 'Total Value (₮)'])
+    
+    # Write deliveries
+    for delivery in deliveries:
+        products = ", ".join([
+            f"{item.product.name} ({item.quantity} x ₮{item.price})"
+            for item in delivery.items
+        ])
+        
+        writer.writerow([
+            delivery.delivery_date.strftime('%Y-%m-%d'),
+            delivery.supermarket.name,
+            delivery.subchain.name if delivery.subchain else 'N/A',
+            products,
+            f"{delivery.total_value:.2f}"
+        ])
+    
+    # Create response
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=deliveries.csv"
+    output.headers["Content-type"] = "text/csv"
+    
+    return output 

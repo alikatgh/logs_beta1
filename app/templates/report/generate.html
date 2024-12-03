@@ -1,6 +1,12 @@
 {% extends "base.html" %} {% block content %}
 <div class="container mt-4">
-  <h1>Reports</h1>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Reports</h1>
+    <a href="{{ url_for('report.download') }}" class="btn btn-success">
+      <i class="fas fa-download"></i> Download CSV
+    </a>
+  </div>
+
   <div class="row">
     <div class="col-md-6">
       <h2>Recent Deliveries</h2>

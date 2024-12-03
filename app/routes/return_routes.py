@@ -1,9 +1,11 @@
 """Return management routes."""
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, make_response
 from flask_login import login_required
 from app.extensions import db
 from app.models import Return, ReturnItem, Supermarket, Subchain, Product
 from app.forms import ReturnForm
+import csv
+from io import StringIO
 
 return_bp = Blueprint('return', __name__, url_prefix='/return')
 
@@ -82,3 +84,41 @@ def view(return_id):
     """View a specific return."""
     return_obj = Return.query.get_or_404(return_id)
     return render_template('return/view.html', return_obj=return_obj)
+
+
+@return_bp.route('/download')
+@login_required
+def download():
+    """Download returns as CSV."""
+    # Get data
+    returns = Return.query.order_by(Return.return_date.desc()).all()
+    
+    # Create CSV file
+    si = StringIO()
+    writer = csv.writer(si)
+    
+    # Write headers
+    writer.writerow(['Return Date', 'Delivery Date', 'Supermarket', 'Subchain', 'Products', 'Total Value (₮)'])
+    
+    # Write returns
+    for return_obj in returns:
+        products = ", ".join([
+            f"{item.product.name} ({item.quantity} x ₮{item.price})"
+            for item in return_obj.items
+        ])
+        
+        writer.writerow([
+            return_obj.return_date.strftime('%Y-%m-%d'),
+            return_obj.delivery_date.strftime('%Y-%m-%d'),
+            return_obj.supermarket.name,
+            return_obj.subchain.name if return_obj.subchain else 'N/A',
+            products,
+            f"{return_obj.total_value:.2f}"
+        ])
+    
+    # Create response
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=returns.csv"
+    output.headers["Content-type"] = "text/csv"
+    
+    return output
