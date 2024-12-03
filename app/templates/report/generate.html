@@ -17,7 +17,7 @@
           <tr>
             <td>{{ delivery.delivery_date.strftime('%Y-%m-%d') }}</td>
             <td>{{ delivery.supermarket.name }}</td>
-            <td>{{ delivery.total_value }}</td>
+            <td>₮{{ "%.2f"|format(delivery.total_value) }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -38,7 +38,7 @@
           <tr>
             <td>{{ return.return_date.strftime('%Y-%m-%d') }}</td>
             <td>{{ return.supermarket.name }}</td>
-            <td>{{ return.total_value }}</td>
+            <td>₮{{ "%.2f"|format(return.total_value) }}</td>
           </tr>
           {% endfor %}
         </tbody>

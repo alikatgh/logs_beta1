@@ -24,13 +24,13 @@
               <ul class="list-unstyled">
                 {% for item in delivery.items %}
                 <li>
-                  {{ item.product.name }} ({{ item.quantity }} x ${{ item.price
+                  {{ item.product.name }} ({{ item.quantity }} x ₮{{ item.price
                   }})
                 </li>
                 {% endfor %}
               </ul>
             </td>
-            <td>${{ "%.2f"|format(delivery.total_value) }}</td>
+            <td>₮{{ "%.2f"|format(delivery.total_value) }}</td>
             <td>
               <a
                 href="{{ url_for('delivery.view', delivery_id=delivery.id) }}"

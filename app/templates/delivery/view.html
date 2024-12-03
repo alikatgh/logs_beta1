@@ -40,8 +40,8 @@
               <tr>
                 <td>{{ item.product.name }}</td>
                 <td>{{ item.quantity }}</td>
-                <td>${{ "%.2f"|format(item.price) }}</td>
-                <td>${{ "%.2f"|format(item.total_price) }}</td>
+                <td>₮{{ "%.2f"|format(item.price) }}</td>
+                <td>₮{{ "%.2f"|format(item.total_price) }}</td>
               </tr>
               {% endfor %}
               <tr class="table-info">
@@ -49,7 +49,7 @@
                   <strong>Total Value</strong>
                 </td>
                 <td>
-                  <strong>${{ "%.2f"|format(delivery.total_value) }}</strong>
+                  <strong>₮{{ "%.2f"|format(delivery.total_value) }}</strong>
                 </td>
               </tr>
             </tbody>

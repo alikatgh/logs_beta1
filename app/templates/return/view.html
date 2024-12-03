@@ -24,7 +24,7 @@
         </dd>
 
         <dt class="col-sm-3">Total Value</dt>
-        <dd class="col-sm-9">${{ "%.2f"|format(return_obj.total_value) }}</dd>
+        <dd class="col-sm-9">₮{{ "%.2f"|format(return_obj.total_value) }}</dd>
       </dl>
     </div>
   </div>
@@ -45,8 +45,8 @@
         <tr>
           <td>{{ item.product.name }}</td>
           <td>{{ item.quantity }}</td>
-          <td>${{ "%.2f"|format(item.price) }}</td>
-          <td>${{ "%.2f"|format(item.total_price) }}</td>
+          <td>₮{{ "%.2f"|format(item.price) }}</td>
+          <td>₮{{ "%.2f"|format(item.total_price) }}</td>
         </tr>
         {% endfor %}
       </tbody>

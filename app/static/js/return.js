@@ -58,7 +58,9 @@ document.addEventListener("DOMContentLoaded", function () {
           ${products
             .map(
               (p) =>
-                `<option value="${p.id}" data-price="${p.price}">${p.name}</option>`
+                `<option value="${p.id}" data-price="${p.price}">
+                  ${p.name} (₮${p.price})
+                </option>`
             )
             .join("")}
         </select>

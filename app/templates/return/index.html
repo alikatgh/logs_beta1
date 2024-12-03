@@ -21,7 +21,7 @@
             <td>{{ return.delivery_date.strftime('%Y-%m-%d') }}</td>
             <td>{{ return.supermarket.name }}</td>
             <td>{{ return.subchain.name if return.subchain else 'N/A' }}</td>
-            <td>${{ "%.2f"|format(return.total_value) }}</td>
+            <td>₮{{ "%.2f"|format(return.total_value) }}</td>
             <td>
               <a
                 href="{{ url_for('return.view', return_id=return.id) }}"
