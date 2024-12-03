@@ -1,11 +1,12 @@
 """Delivery management routes."""
-from flask import Blueprint, render_template, redirect, url_for, flash, jsonify, make_response
+from flask import Blueprint, render_template, redirect, url_for, flash, jsonify, make_response, request
 from flask_login import login_required
 from app.extensions import db
 from app.models import Delivery, DeliveryItem, Product, Supermarket, Subchain
 from app.forms import DeliveryForm
 import csv
 from io import StringIO
+from flask_wtf import FlaskForm
 
 # Create the blueprint
 delivery_bp = Blueprint('delivery', __name__, url_prefix='/delivery')
@@ -16,16 +17,8 @@ delivery_bp = Blueprint('delivery', __name__, url_prefix='/delivery')
 def index():
     """List all deliveries."""
     deliveries = Delivery.query.order_by(Delivery.delivery_date.desc()).all()
-    print(f"Found {len(deliveries)} deliveries")
-    for d in deliveries:
-        print(f"Delivery {d.id}:", {
-            'date': d.delivery_date,
-            'supermarket_id': d.supermarket_id,
-            'subchain_id': d.subchain_id,
-            'items_count': len(d.items),
-            'items': [(i.product_id, i.quantity, i.price) for i in d.items]
-        })
-    return render_template('delivery/index.html', deliveries=deliveries)
+    form = FlaskForm()
+    return render_template('delivery/index.html', deliveries=deliveries, form=form)
 
 
 @delivery_bp.route('/create', methods=['GET', 'POST'])
@@ -151,3 +144,39 @@ def download():
     output.headers["Content-type"] = "text/csv"
     
     return output 
+
+
+@delivery_bp.route('/<int:delivery_id>/delete', methods=['POST'])
+@login_required
+def delete_delivery(delivery_id):
+    """Delete a delivery."""
+    delivery = Delivery.query.get_or_404(delivery_id)
+    try:
+        db.session.delete(delivery)
+        db.session.commit()
+        flash('Delivery deleted successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting delivery: {str(e)}', 'error')
+    return redirect(url_for('delivery.index'))
+
+
+@delivery_bp.route('/bulk_delete', methods=['POST'])
+@login_required
+def bulk_delete_deliveries():
+    """Delete multiple deliveries."""
+    delivery_ids = request.form.getlist('selected_deliveries[]')
+    if not delivery_ids:
+        flash('No deliveries selected', 'error')
+        return redirect(url_for('delivery.index'))
+    
+    try:
+        deliveries = Delivery.query.filter(Delivery.id.in_(delivery_ids)).all()
+        for delivery in deliveries:
+            db.session.delete(delivery)
+        db.session.commit()
+        flash(f'{len(deliveries)} deliveries deleted successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting deliveries: {str(e)}', 'error')
+    return redirect(url_for('delivery.index')) 

@@ -1,11 +1,12 @@
 """Return management routes."""
-from flask import Blueprint, render_template, redirect, url_for, flash, make_response
+from flask import Blueprint, render_template, redirect, url_for, flash, make_response, request
 from flask_login import login_required
 from app.extensions import db
 from app.models import Return, ReturnItem, Supermarket, Subchain, Product
 from app.forms import ReturnForm
 import csv
 from io import StringIO
+from flask_wtf import FlaskForm
 
 return_bp = Blueprint('return', __name__, url_prefix='/return')
 
@@ -15,7 +16,8 @@ return_bp = Blueprint('return', __name__, url_prefix='/return')
 def index():
     """List all returns."""
     returns = Return.query.order_by(Return.return_date.desc()).all()
-    return render_template('return/index.html', returns=returns)
+    form = FlaskForm()
+    return render_template('return/index.html', returns=returns, form=form)
 
 
 @return_bp.route('/create', methods=['GET', 'POST'])
@@ -122,3 +124,39 @@ def download():
     output.headers["Content-type"] = "text/csv"
     
     return output
+
+
+@return_bp.route('/<int:return_id>/delete', methods=['POST'])
+@login_required
+def delete_return(return_id):
+    """Delete a return."""
+    return_obj = Return.query.get_or_404(return_id)
+    try:
+        db.session.delete(return_obj)
+        db.session.commit()
+        flash('Return deleted successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting return: {str(e)}', 'error')
+    return redirect(url_for('return.index'))
+
+
+@return_bp.route('/bulk_delete', methods=['POST'])
+@login_required
+def bulk_delete_returns():
+    """Delete multiple returns."""
+    return_ids = request.form.getlist('selected_returns[]')
+    if not return_ids:
+        flash('No returns selected', 'error')
+        return redirect(url_for('return.index'))
+    
+    try:
+        returns = Return.query.filter(Return.id.in_(return_ids)).all()
+        for return_obj in returns:
+            db.session.delete(return_obj)
+        db.session.commit()
+        flash(f'{len(returns)} returns deleted successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting returns: {str(e)}', 'error')
+    return redirect(url_for('return.index'))
