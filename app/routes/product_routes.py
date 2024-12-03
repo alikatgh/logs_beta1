@@ -44,9 +44,8 @@ def edit(id):
     
     if form.validate_on_submit():
         product.name = form.name.data
-        product.description = form.description.data
         product.price = form.price.data
-        product.sku = form.sku.data
+        product.weight = form.weight.data
         db.session.commit()
         flash('Product updated successfully', 'success')
         return redirect(url_for('product.manage_products'))

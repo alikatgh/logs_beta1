@@ -7,9 +7,8 @@
         <thead>
           <tr>
             <th>Name</th>
-            <th>Description</th>
             <th>Price</th>
-            <th>SKU</th>
+            <th>Weight</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -17,23 +16,23 @@
           {% for product in products %}
           <tr>
             <td>{{ product.name }}</td>
-            <td>{{ product.description }}</td>
-            <td>{{ product.price }}</td>
-            <td>{{ product.sku }}</td>
+            <td>${{ "%.2f"|format(product.price) }}</td>
+            <td>{{ "%.3f"|format(product.weight) }} kg</td>
             <td>
               <a
                 href="{{ url_for('product.edit', id=product.id) }}"
                 class="btn btn-sm btn-primary"
-                >Edit</a
               >
+                <i class="fas fa-edit"></i> Edit
+              </a>
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
-      <a href="{{ url_for('product.create') }}" class="btn btn-success"
-        >Add Product</a
-      >
+      <a href="{{ url_for('product.create') }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Add Product
+      </a>
     </div>
   </div>
 </div>

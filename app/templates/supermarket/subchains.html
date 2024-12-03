@@ -1,12 +1,39 @@
 {% extends "base.html" %} {% block content %}
 <div class="container mt-4">
   <h1>{{ supermarket.name }} - Subchains</h1>
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Supermarket Details</h5>
+          <dl class="row mb-0">
+            <dt class="col-sm-3">Address</dt>
+            <dd class="col-sm-9">{{ supermarket.address or 'N/A' }}</dd>
+
+            <dt class="col-sm-3">Contact Person</dt>
+            <dd class="col-sm-9">{{ supermarket.contact_person or 'N/A' }}</dd>
+
+            <dt class="col-sm-3">Phone</dt>
+            <dd class="col-sm-9">{{ supermarket.phone or 'N/A' }}</dd>
+
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">{{ supermarket.email or 'N/A' }}</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="row">
     <div class="col-md-12">
       <table class="table">
         <thead>
           <tr>
             <th>Name</th>
+            <th>Address</th>
+            <th>Contact Person</th>
+            <th>Phone</th>
+            <th>Email</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -14,26 +41,86 @@
           {% for subchain in supermarket.subchains %}
           <tr>
             <td>{{ subchain.name }}</td>
+            <td>{{ subchain.address or 'N/A' }}</td>
+            <td>{{ subchain.contact_person or 'N/A' }}</td>
+            <td>{{ subchain.phone or 'N/A' }}</td>
+            <td>{{ subchain.email or 'N/A' }}</td>
             <td>
               <a
                 href="{{ url_for('supermarket.edit_subchain', id=supermarket.id, subchain_id=subchain.id) }}"
                 class="btn btn-sm btn-primary"
-                >Edit</a
               >
+                <i class="fas fa-edit"></i> Edit
+              </a>
+              <button
+                class="btn btn-sm btn-danger"
+                onclick="confirmDelete({{ subchain.id }}, '{{ subchain.name }}')"
+              >
+                <i class="fas fa-trash"></i> Delete
+              </button>
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
-      <a
-        href="{{ url_for('supermarket.create_subchain', id=supermarket.id) }}"
-        class="btn btn-success"
-        >Add Subchain</a
-      >
-      <a href="{{ url_for('supermarket.index') }}" class="btn btn-secondary"
-        >Back to Supermarkets</a
-      >
+      <div class="btn-group">
+        <a
+          href="{{ url_for('supermarket.create_subchain', id=supermarket.id) }}"
+          class="btn btn-success"
+        >
+          <i class="fas fa-plus"></i> Add Subchain
+        </a>
+        <a href="{{ url_for('supermarket.index') }}" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> Back to Supermarkets
+        </a>
+      </div>
     </div>
   </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Delete</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Are you sure you want to delete subchain "<span
+            id="subchainName"
+          ></span
+          >"?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <form id="deleteForm" method="POST">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function confirmDelete(id, name) {
+    document.getElementById("subchainName").textContent = name;
+    document.getElementById(
+      "deleteForm"
+    ).action = `/supermarket/{{ supermarket.id }}/subchains/${id}/delete`;
+    new bootstrap.Modal(document.getElementById("deleteModal")).show();
+  }
+</script>
 {% endblock %}

@@ -24,11 +24,7 @@ def create():
     form = SupermarketForm()
     if form.validate_on_submit():
         supermarket = Supermarket(
-            name=form.name.data,
-            address=form.address.data,
-            contact_person=form.contact_person.data,
-            phone=form.phone.data,
-            email=form.email.data
+            name=form.name.data
         )
         db.session.add(supermarket)
         db.session.commit()
@@ -46,10 +42,6 @@ def edit(id):
     
     if form.validate_on_submit():
         supermarket.name = form.name.data
-        supermarket.address = form.address.data
-        supermarket.contact_person = form.contact_person.data
-        supermarket.phone = form.phone.data
-        supermarket.email = form.email.data
         db.session.commit()
         flash('Supermarket updated successfully', 'success')
         return redirect(url_for('supermarket.index'))
@@ -75,6 +67,10 @@ def create_subchain(id):
     if form.validate_on_submit():
         subchain = Subchain(
             name=form.name.data,
+            address=form.address.data,
+            contact_person=form.contact_person.data,
+            phone=form.phone.data,
+            email=form.email.data,
             supermarket_id=id
         )
         db.session.add(subchain)
@@ -122,4 +118,43 @@ def edit_subchain(id, subchain_id):
         supermarket=supermarket,
         subchain=subchain
     )
+
+
+@supermarket_bp.route('/<int:id>/subchains/<int:subchain_id>/delete', methods=['POST'])
+@login_required
+def delete_subchain(id, subchain_id):
+    """Delete a subchain."""
+    supermarket = Supermarket.query.get_or_404(id)
+    subchain = Subchain.query.get_or_404(subchain_id)
+    
+    if subchain.supermarket_id != id:
+        flash('Invalid subchain for this supermarket', 'error')
+        return redirect(url_for('supermarket.subchains', id=id))
+    
+    try:
+        name = subchain.name
+        db.session.delete(subchain)
+        db.session.commit()
+        flash(f'Subchain "{name}" has been deleted', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting subchain: {str(e)}', 'error')
+    
+    return redirect(url_for('supermarket.subchains', id=id))
+
+
+@supermarket_bp.route('/<int:id>/delete', methods=['POST'])
+@login_required
+def delete(id):
+    """Delete a supermarket and all its subchains."""
+    supermarket = Supermarket.query.get_or_404(id)
+    name = supermarket.name
+    try:
+        db.session.delete(supermarket)
+        db.session.commit()
+        flash(f'Supermarket "{name}" and all its subchains have been deleted', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting supermarket: {str(e)}', 'error')
+    return redirect(url_for('supermarket.index'))
   

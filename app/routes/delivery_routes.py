@@ -14,6 +14,14 @@ delivery_bp = Blueprint('delivery', __name__, url_prefix='/delivery')
 def index():
     """List all deliveries."""
     deliveries = Delivery.query.order_by(Delivery.delivery_date.desc()).all()
+    # Debug prints
+    print("Found deliveries:", len(deliveries))
+    for delivery in deliveries:
+        print(f"Delivery {delivery.id}:", {
+            'date': delivery.delivery_date,
+            'supermarket': delivery.supermarket.name if delivery.supermarket else None,
+            'items': [(item.product.name, item.quantity, item.price) for item in delivery.items]
+        })
     return render_template('delivery/index.html', deliveries=deliveries)
 
 

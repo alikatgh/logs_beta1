@@ -34,10 +34,13 @@ class Supermarket(db.Model):
     phone = db.Column(db.String(20))
     email = db.Column(db.String(120))
     
-    # Relationships
-    subchains = db.relationship('Subchain', backref='supermarket', lazy=True)
-    deliveries = db.relationship('Delivery', backref='supermarket', lazy=True)
-    returns = db.relationship('Return', backref='supermarket', lazy=True)
+    # Relationships with cascade delete
+    subchains = db.relationship('Subchain', backref='supermarket', lazy=True,
+                               cascade='all, delete-orphan')
+    deliveries = db.relationship('Delivery', backref='supermarket', lazy=True,
+                                cascade='all, delete-orphan')
+    returns = db.relationship('Return', backref='supermarket', lazy=True,
+                            cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Supermarket {self.name}>'
@@ -46,6 +49,10 @@ class Supermarket(db.Model):
 class Subchain(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    address = db.Column(db.String(200))
+    contact_person = db.Column(db.String(100))
+    phone = db.Column(db.String(20))
+    email = db.Column(db.String(120))
     supermarket_id = db.Column(db.Integer, db.ForeignKey('supermarket.id'), nullable=False)
     
     # Relationships
@@ -59,9 +66,8 @@ class Subchain(db.Model):
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text)
     price = db.Column(db.Numeric(10, 2), nullable=False)
-    sku = db.Column(db.String(50), unique=True)
+    weight = db.Column(db.Numeric(10, 3), nullable=False)  # Weight in kg
     
     # Relationships
     delivery_items = db.relationship('DeliveryItem', backref='product', lazy=True)

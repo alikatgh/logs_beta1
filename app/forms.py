@@ -114,10 +114,6 @@ class ProductForm(FlaskForm):
         "Name",
         validators=[DataRequired(), Length(max=100)]
     )
-    description = StringField(
-        "Description",
-        validators=[Optional(), Length(max=500)]
-    )
     price = DecimalField(
         "Price",
         places=2,
@@ -126,9 +122,13 @@ class ProductForm(FlaskForm):
             NumberRange(min=0.01, message="Price must be greater than 0"),
         ],
     )
-    sku = StringField(
-        "SKU",
-        validators=[Optional(), Length(max=50)]
+    weight = DecimalField(
+        "Weight (kg)",
+        places=3,
+        validators=[
+            DataRequired(),
+            NumberRange(min=0.001, message="Weight must be greater than 0"),
+        ],
     )
     submit = SubmitField("Save Product")
 
@@ -215,6 +215,15 @@ class SupermarketForm(FlaskForm):
         "Name", 
         validators=[DataRequired(), Length(max=100)]
     )
+    submit = SubmitField("Save Supermarket")
+
+
+class SubchainForm(FlaskForm):
+    """Form for creating and editing subchains."""
+    name = StringField(
+        "Name", 
+        validators=[DataRequired(), Length(max=100)]
+    )
     address = StringField(
         "Address", 
         validators=[Optional(), Length(max=200)]
@@ -230,14 +239,5 @@ class SupermarketForm(FlaskForm):
     email = StringField(
         "Email", 
         validators=[Optional(), Email(), Length(max=120)]
-    )
-    submit = SubmitField("Save Supermarket")
-
-
-class SubchainForm(FlaskForm):
-    """Form for creating and editing subchains."""
-    name = StringField(
-        "Name", 
-        validators=[DataRequired(), Length(max=100)]
     )
     submit = SubmitField("Save Subchain")
