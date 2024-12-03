@@ -69,9 +69,19 @@ class Product(db.Model):
     price = db.Column(db.Numeric(10, 2), nullable=False)
     weight = db.Column(db.Numeric(10, 3), nullable=False)  # Weight in kg
     
-    # Relationships
-    delivery_items = db.relationship('DeliveryItem', backref='product', lazy=True)
-    return_items = db.relationship('ReturnItem', backref='product', lazy=True)
+    # Relationships with cascade delete
+    delivery_items = db.relationship(
+        'DeliveryItem',
+        backref='product',
+        lazy=True,
+        cascade='all, delete-orphan'
+    )
+    return_items = db.relationship(
+        'ReturnItem',
+        backref='product',
+        lazy=True,
+        cascade='all, delete-orphan'
+    )
 
     def __repr__(self):
         return f'<Product {self.name}>'

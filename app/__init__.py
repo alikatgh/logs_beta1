@@ -12,6 +12,7 @@ from app.routes import (
     supermarket_bp,
     report_bp
 )
+from flask_wtf.csrf import CSRFProtect
 
 
 def create_app(config_class=Config):
@@ -24,6 +25,8 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
     mail.init_app(app)
     Migrate(app, db)
+    csrf = CSRFProtect()
+    csrf.init_app(app)
 
     # Register blueprints
     app.register_blueprint(auth_bp)
