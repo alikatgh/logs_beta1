@@ -135,7 +135,7 @@ class ProductForm(FlaskForm):
 
 class DeliveryProductForm(FlaskForm):
     """Form for products in a delivery."""
-    product_id = SelectField("Product", coerce=int, validators=[DataRequired()])
+    product_id = SelectField("Product", coerce=int)
     quantity = IntegerField(
         "Quantity",
         validators=[
@@ -151,10 +151,10 @@ class DeliveryProductForm(FlaskForm):
             NumberRange(min=0.01, message="Price must be greater than 0"),
         ],
     )
+    total = DecimalField("Total", places=2, render_kw={'readonly': True})
 
-    def validate_price(self, price):
-        if price.data and price.data <= 0:
-            raise ValidationError("Price must be greater than 0")
+    class Meta:
+        csrf = False  # Disable CSRF for nested form
 
 
 class DeliveryForm(FlaskForm):
@@ -168,16 +168,27 @@ class DeliveryForm(FlaskForm):
         coerce=int,
         validators=[DataRequired()]
     )
-    subchain = SelectField(
+    subchain_id = SelectField(
         "Subchain", 
         coerce=int,
-        validators=[Optional()]
+        validators=[Optional()],
+        choices=[]
     )
     products = FieldList(
         FormField(DeliveryProductForm),
         min_entries=1
     )
+    total_amount = DecimalField("Total Amount", places=2, render_kw={'readonly': True})
     submit = SubmitField("Create Delivery")
+
+    def __init__(self, *args, **kwargs):
+        super(DeliveryForm, self).__init__(*args, **kwargs)
+        self.subchain_id.choices = [(0, 'Select Subchain')]
+
+    def validate_products(self, field):
+        valid_products = [f for f in field if f.product_id.data and f.product_id.data != 0]
+        if not valid_products:
+            raise ValidationError('Please add at least one product')
 
 
 class ReturnForm(FlaskForm):

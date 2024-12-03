@@ -78,6 +78,8 @@ class Product(db.Model):
 
 
 class Delivery(db.Model):
+    __tablename__ = 'delivery'
+    
     id = db.Column(db.Integer, primary_key=True)
     delivery_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
     supermarket_id = db.Column(db.Integer, db.ForeignKey('supermarket.id'), nullable=False)
@@ -97,7 +99,7 @@ class Delivery(db.Model):
         return sum(item.total_price for item in self.items)
 
     def __repr__(self):
-        return f'<Delivery {self.id} to {self.supermarket.name}>'
+        return f'<Delivery {self.id} to {self.supermarket.name if self.supermarket else "Unknown"}>'
 
 
 class DeliveryItem(db.Model):

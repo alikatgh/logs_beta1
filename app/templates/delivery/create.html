@@ -1,8 +1,7 @@
-{% extends "base.html" %} {% block title %}Create Delivery{% endblock %} {%
-block content %}
-<div class="container">
+{% extends "base.html" %} {% block content %}
+<div class="container mt-4">
   <h1>Create New Delivery</h1>
-  <form method="POST" class="mt-4">
+  <form method="POST" id="deliveryForm" class="mt-4">
     {{ form.hidden_tag() }}
     <div class="row mb-3">
       <div class="col-md-4">
@@ -20,9 +19,9 @@ block content %}
         {% endfor %}
       </div>
       <div class="col-md-4">
-        {{ form.subchain.label(class="form-label") }} {{
-        form.subchain(class="form-control") }} {% for error in
-        form.subchain.errors %}
+        {{ form.subchain_id.label(class="form-label") }} {{
+        form.subchain_id(class="form-control") }} {% for error in
+        form.subchain_id.errors %}
         <span class="text-danger">{{ error }}</span>
         {% endfor %}
       </div>
@@ -32,30 +31,45 @@ block content %}
     <div id="products-container">
       {% for product_form in form.products %}
       <div class="product-row row mb-3">
-        <div class="col-md-4">
+        <div class="col-md-3">
           {{ product_form.product_id.label(class="form-label") }} {{
           product_form.product_id(class="form-control product-select") }}
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           {{ product_form.quantity.label(class="form-label") }} {{
-          product_form.quantity(class="form-control") }}
+          product_form.quantity(class="form-control quantity-input") }}
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           {{ product_form.price.label(class="form-label") }} {{
           product_form.price(class="form-control price-input") }}
         </div>
         <div class="col-md-2">
+          {{ product_form.total.label(class="form-label") }} {{
+          product_form.total(class="form-control total-input") }}
+        </div>
+        <div class="col-md-2">
           <button type="button" class="btn btn-danger remove-product mt-4">
-            Remove
+            <i class="fas fa-trash"></i> Remove
           </button>
         </div>
       </div>
       {% endfor %}
     </div>
 
-    <button type="button" id="add-product-btn" class="btn btn-secondary mb-3">
-      Add Product
-    </button>
+    <div class="row mb-3">
+      <div class="col-md-12">
+        <button type="button" id="add-product-btn" class="btn btn-secondary">
+          <i class="fas fa-plus"></i> Add Product
+        </button>
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-6">
+        {{ form.total_amount.label(class="form-label") }} {{
+        form.total_amount(class="form-control") }}
+      </div>
+    </div>
 
     <div>
       {{ form.submit(class="btn btn-primary") }}

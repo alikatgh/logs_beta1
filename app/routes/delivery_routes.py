@@ -14,13 +14,14 @@ delivery_bp = Blueprint('delivery', __name__, url_prefix='/delivery')
 def index():
     """List all deliveries."""
     deliveries = Delivery.query.order_by(Delivery.delivery_date.desc()).all()
-    # Debug prints
-    print("Found deliveries:", len(deliveries))
-    for delivery in deliveries:
-        print(f"Delivery {delivery.id}:", {
-            'date': delivery.delivery_date,
-            'supermarket': delivery.supermarket.name if delivery.supermarket else None,
-            'items': [(item.product.name, item.quantity, item.price) for item in delivery.items]
+    print(f"Found {len(deliveries)} deliveries")
+    for d in deliveries:
+        print(f"Delivery {d.id}:", {
+            'date': d.delivery_date,
+            'supermarket_id': d.supermarket_id,
+            'subchain_id': d.subchain_id,
+            'items_count': len(d.items),
+            'items': [(i.product_id, i.quantity, i.price) for i in d.items]
         })
     return render_template('delivery/index.html', deliveries=deliveries)
 
@@ -35,12 +36,13 @@ def create():
     form.supermarket_id.choices = [
         (s.id, s.name) for s in Supermarket.query.order_by('name').all()
     ]
-    form.subchain.choices = [(0, 'Select Subchain')] + [
-        (s.id, s.name) 
-        for s in Subchain.query.filter_by(
-            supermarket_id=form.supermarket_id.data
-        ).all()
-    ] if form.supermarket_id.data else [(0, 'Select Subchain')]
+    
+    # If supermarket is selected, populate subchains
+    if form.supermarket_id.data:
+        subchains = Subchain.query.filter_by(supermarket_id=form.supermarket_id.data).all()
+        form.subchain_id.choices = [(0, 'Select Subchain')] + [
+            (s.id, s.name) for s in subchains
+        ]
     
     # Populate product choices for each product form
     for product_form in form.products:
@@ -51,22 +53,14 @@ def create():
     
     if form.validate_on_submit():
         try:
-            # Print form data for debugging
-            print("Form data:", {
-                'delivery_date': form.delivery_date.data,
-                'supermarket_id': form.supermarket_id.data,
-                'subchain': form.subchain.data,
-                'products': [(p.product_id.data, p.quantity.data, p.price.data) for p in form.products]
-            })
-            
             delivery = Delivery(
                 delivery_date=form.delivery_date.data,
                 supermarket_id=form.supermarket_id.data,
-                subchain_id=form.subchain.data if form.subchain.data and form.subchain.data != 0 else None
+                subchain_id=form.subchain_id.data if form.subchain_id.data and form.subchain_id.data != 0 else None
             )
             
             for product_form in form.products:
-                if product_form.product_id.data:  # Only add if product is selected
+                if product_form.product_id.data:
                     item = DeliveryItem(
                         product_id=product_form.product_id.data,
                         quantity=product_form.quantity.data,
@@ -85,12 +79,7 @@ def create():
             
         except Exception as e:
             db.session.rollback()
-            print("Error creating delivery:", str(e))  # Debug print
             flash(f'Error creating delivery: {str(e)}', 'error')
-            return render_template('delivery/create.html', form=form)
-    else:
-        # Print validation errors for debugging
-        print("Form validation errors:", form.errors)
     
     return render_template('delivery/create.html', form=form)
 
@@ -108,7 +97,9 @@ def view(delivery_id):
 def get_subchains(supermarket_id):
     """Get subchains for a supermarket (AJAX endpoint)."""
     subchains = Subchain.query.filter_by(supermarket_id=supermarket_id).all()
-    return jsonify([{'id': s.id, 'name': s.name} for s in subchains])
+    return jsonify([
+        {'id': s.id, 'name': s.name} for s in subchains
+    ])
 
 
 @delivery_bp.route('/get_products')
