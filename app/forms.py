@@ -135,7 +135,11 @@ class ProductForm(FlaskForm):
 
 class DeliveryProductForm(FlaskForm):
     """Form for products in a delivery."""
-    product_id = SelectField("Product", coerce=int)
+    product_id = SelectField(
+        "Product", 
+        coerce=int,
+        choices=[]  # Initialize with empty choices
+    )
     quantity = IntegerField(
         "Quantity",
         validators=[
@@ -155,6 +159,11 @@ class DeliveryProductForm(FlaskForm):
 
     class Meta:
         csrf = False  # Disable CSRF for nested form
+
+    def __init__(self, *args, **kwargs):
+        super(DeliveryProductForm, self).__init__(*args, **kwargs)
+        # Set default choices
+        self.product_id.choices = [(0, 'Select Product')]
 
 
 class DeliveryForm(FlaskForm):
@@ -193,16 +202,6 @@ class DeliveryForm(FlaskForm):
 
 class ReturnForm(FlaskForm):
     """Form for creating and editing returns."""
-    supermarket_id = SelectField(
-        "Supermarket", 
-        coerce=int,
-        validators=[DataRequired()]
-    )
-    subchain_id = SelectField(
-        "Subchain", 
-        coerce=int,
-        validators=[Optional()]
-    )
     delivery_date = DateField(
         "Delivery Date",
         validators=[DataRequired()],
@@ -213,11 +212,32 @@ class ReturnForm(FlaskForm):
         validators=[DataRequired()],
         default=datetime.utcnow
     )
+    supermarket_id = SelectField(
+        "Supermarket", 
+        coerce=int,
+        validators=[DataRequired()]
+    )
+    subchain_id = SelectField(
+        "Subchain", 
+        coerce=int,
+        validators=[Optional()],
+        choices=[]
+    )
     products = FieldList(
         FormField(DeliveryProductForm),
         min_entries=1
     )
+    total_amount = DecimalField("Total Amount", places=2, render_kw={'readonly': True})
     submit = SubmitField("Create Return")
+
+    def __init__(self, *args, **kwargs):
+        super(ReturnForm, self).__init__(*args, **kwargs)
+        self.subchain_id.choices = [(0, 'Select Subchain')]
+
+    def validate_products(self, field):
+        valid_products = [f for f in field if f.product_id.data and f.product_id.data != 0]
+        if not valid_products:
+            raise ValidationError('Please add at least one product')
 
 
 class SupermarketForm(FlaskForm):
