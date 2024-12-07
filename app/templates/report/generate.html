@@ -1,6 +1,12 @@
 {% extends "base.html" %} {% block content %}
 <div class="container mt-4">
-  <h1>Reports</h1>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Reports</h1>
+    <a href="{{ url_for('report.download') }}" class="btn btn-success">
+      <i class="fas fa-download"></i> Download CSV
+    </a>
+  </div>
+
   <div class="row">
     <div class="col-md-6">
       <h2>Recent Deliveries</h2>
@@ -17,7 +23,7 @@
           <tr>
             <td>{{ delivery.delivery_date.strftime('%Y-%m-%d') }}</td>
             <td>{{ delivery.supermarket.name }}</td>
-            <td>{{ delivery.total_value }}</td>
+            <td>₮{{ "%.2f"|format(delivery.total_value) }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -38,7 +44,7 @@
           <tr>
             <td>{{ return.return_date.strftime('%Y-%m-%d') }}</td>
             <td>{{ return.supermarket.name }}</td>
-            <td>{{ return.total_value }}</td>
+            <td>₮{{ "%.2f"|format(return.total_value) }}</td>
           </tr>
           {% endfor %}
         </tbody>

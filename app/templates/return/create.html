@@ -1,24 +1,31 @@
 {% extends "base.html" %} {% block content %}
 <div class="container mt-4">
-  <h1>Create New Delivery</h1>
-  <form method="POST" id="deliveryForm" class="mt-4">
+  <h1>Create New Return</h1>
+  <form method="POST" id="returnForm" class="mt-4">
     {{ form.hidden_tag() }}
     <div class="row mb-3">
-      <div class="col-md-4">
+      <div class="col-md-3">
         {{ form.delivery_date.label(class="form-label") }} {{
         form.delivery_date(class="form-control") }} {% for error in
         form.delivery_date.errors %}
         <span class="text-danger">{{ error }}</span>
         {% endfor %}
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
+        {{ form.return_date.label(class="form-label") }} {{
+        form.return_date(class="form-control") }} {% for error in
+        form.return_date.errors %}
+        <span class="text-danger">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <div class="col-md-3">
         {{ form.supermarket_id.label(class="form-label") }} {{
         form.supermarket_id(class="form-control") }} {% for error in
         form.supermarket_id.errors %}
         <span class="text-danger">{{ error }}</span>
         {% endfor %}
       </div>
-      <div class="col-md-4">
+      <div class="col-md-3">
         {{ form.subchain_id.label(class="form-label") }} {{
         form.subchain_id(class="form-control") }} {% for error in
         form.subchain_id.errors %}
@@ -73,12 +80,12 @@
 
     <div>
       {{ form.submit(class="btn btn-primary") }}
-      <a href="{{ url_for('delivery.index') }}" class="btn btn-secondary"
+      <a href="{{ url_for('return.index') }}" class="btn btn-secondary"
         >Cancel</a
       >
     </div>
   </form>
 </div>
 
-<script src="{{ url_for('static', filename='js/delivery.js') }}"></script>
+<script src="{{ url_for('static', filename='js/return.js') }}"></script>
 {% endblock %}

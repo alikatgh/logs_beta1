@@ -34,10 +34,13 @@ class Supermarket(db.Model):
     phone = db.Column(db.String(20))
     email = db.Column(db.String(120))
     
-    # Relationships
-    subchains = db.relationship('Subchain', backref='supermarket', lazy=True)
-    deliveries = db.relationship('Delivery', backref='supermarket', lazy=True)
-    returns = db.relationship('Return', backref='supermarket', lazy=True)
+    # Relationships with cascade delete
+    subchains = db.relationship('Subchain', backref='supermarket', lazy=True,
+                               cascade='all, delete-orphan')
+    deliveries = db.relationship('Delivery', backref='supermarket', lazy=True,
+                                cascade='all, delete-orphan')
+    returns = db.relationship('Return', backref='supermarket', lazy=True,
+                            cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Supermarket {self.name}>'
@@ -46,6 +49,10 @@ class Supermarket(db.Model):
 class Subchain(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    address = db.Column(db.String(200))
+    contact_person = db.Column(db.String(100))
+    phone = db.Column(db.String(20))
+    email = db.Column(db.String(120))
     supermarket_id = db.Column(db.Integer, db.ForeignKey('supermarket.id'), nullable=False)
     
     # Relationships
@@ -59,19 +66,30 @@ class Subchain(db.Model):
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text)
     price = db.Column(db.Numeric(10, 2), nullable=False)
-    sku = db.Column(db.String(50), unique=True)
+    weight = db.Column(db.Numeric(10, 3), nullable=False)  # Weight in kg
     
-    # Relationships
-    delivery_items = db.relationship('DeliveryItem', backref='product', lazy=True)
-    return_items = db.relationship('ReturnItem', backref='product', lazy=True)
+    # Relationships with cascade delete
+    delivery_items = db.relationship(
+        'DeliveryItem',
+        backref='product',
+        lazy=True,
+        cascade='all, delete-orphan'
+    )
+    return_items = db.relationship(
+        'ReturnItem',
+        backref='product',
+        lazy=True,
+        cascade='all, delete-orphan'
+    )
 
     def __repr__(self):
         return f'<Product {self.name}>'
 
 
 class Delivery(db.Model):
+    __tablename__ = 'delivery'
+    
     id = db.Column(db.Integer, primary_key=True)
     delivery_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
     supermarket_id = db.Column(db.Integer, db.ForeignKey('supermarket.id'), nullable=False)
@@ -91,7 +109,7 @@ class Delivery(db.Model):
         return sum(item.total_price for item in self.items)
 
     def __repr__(self):
-        return f'<Delivery {self.id} to {self.supermarket.name}>'
+        return f'<Delivery {self.id} to {self.supermarket.name if self.supermarket else "Unknown"}>'
 
 
 class DeliveryItem(db.Model):
@@ -110,10 +128,9 @@ class DeliveryItem(db.Model):
 
 
 class Return(db.Model):
-    """Model for return records."""
     id = db.Column(db.Integer, primary_key=True)
-    return_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
     delivery_date = db.Column(db.Date, nullable=False)
+    return_date = db.Column(db.Date, nullable=False)
     supermarket_id = db.Column(db.Integer, db.ForeignKey('supermarket.id'), nullable=False)
     subchain_id = db.Column(db.Integer, db.ForeignKey('subchain.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -121,22 +138,20 @@ class Return(db.Model):
     # Relationships
     items = db.relationship(
         'ReturnItem',
-        backref='return_record',
+        backref='return_obj',
         lazy=True,
         cascade='all, delete-orphan'
     )
 
     @property
     def total_value(self):
-        """Calculate total value of return."""
         return sum(item.total_price for item in self.items)
 
     def __repr__(self):
-        return f'<Return {self.id} from {self.supermarket.name}>'
+        return f'<Return {self.id} from {self.supermarket.name if self.supermarket else "Unknown"}>'
 
 
 class ReturnItem(db.Model):
-    """Model for items in a return record."""
     id = db.Column(db.Integer, primary_key=True)
     return_id = db.Column(db.Integer, db.ForeignKey('return.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
@@ -145,7 +160,6 @@ class ReturnItem(db.Model):
 
     @property
     def total_price(self):
-        """Calculate total price for this item."""
         return Decimal(str(self.price)) * self.quantity
 
     def __repr__(self):
